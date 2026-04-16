@@ -610,6 +610,180 @@ function FeedbackModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
   );
 }
 
+// Task Detail Modal Component
+function TaskDetailModal({ isOpen, onClose, task, columns }: { isOpen: boolean; onClose: () => void; task: Task | null; columns: ColumnData[] }) {
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen, onClose]);
+
+  if (!isOpen || !task) return null;
+
+  const getTaskColumn = () => {
+    for (const col of columns) {
+      if (col.tasks.some(t => t.id === task.id)) {
+        return col;
+      }
+    }
+    return null;
+  };
+
+  const column = getTaskColumn();
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity">
+      <div 
+        ref={modalRef}
+        className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden transform transition-all"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <h3 className="text-lg font-semibold text-gray-900">{task.title}</h3>
+            {column && (
+              <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
+                column.id === 'todo' ? 'bg-gray-100 text-gray-700' :
+                column.id === 'in-progress' ? 'bg-blue-100 text-blue-700' :
+                column.id === 'review' ? 'bg-yellow-100 text-yellow-700' :
+                column.id === 'done' ? 'bg-green-100 text-green-700' :
+                'bg-red-100 text-red-700'
+              }`}>
+                {column.id === 'todo' ? 'Bajarilishi kerak' :
+                 column.id === 'in-progress' ? 'Jarayonda' :
+                 column.id === 'review' ? 'Tekshirish' :
+                 column.id === 'done' ? 'Bajarildi' :
+                 'Bajarilmadi'}
+              </span>
+            )}
+          </div>
+          <button 
+            onClick={onClose}
+            className="p-1 hover:bg-gray-100 rounded-md transition-colors"
+          >
+            <X className="w-4 h-4 text-gray-500" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="p-6 space-y-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+          {/* Description */}
+          {task.description && (
+            <div>
+              <h4 className="text-sm font-semibold text-gray-900 mb-2">Tavsif</h4>
+              <p className="text-sm text-gray-600 whitespace-pre-wrap">{task.description}</p>
+            </div>
+          )}
+
+          {/* Tags */}
+          {task.tags && task.tags.length > 0 && (
+            <div>
+              <h4 className="text-sm font-semibold text-gray-900 mb-2">Teglar</h4>
+              <div className="flex flex-wrap gap-2">
+                {task.tags.map((tag, index) => (
+                  <span key={`${tag.text}-${index}`} className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${tag.color}`}>
+                    {tag.text}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Assignee */}
+          {task.assignee && (
+            <div>
+              <h4 className="text-sm font-semibold text-gray-900 mb-2">Mas'ul shaxs</h4>
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm font-bold">
+                  {task.assignee.charAt(0)}
+                </div>
+                <span className="text-sm text-gray-600">{task.assignee}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Due Date */}
+          {task.dueDate && (
+            <div>
+              <h4 className="text-sm font-semibold text-gray-900 mb-2">Muddati</h4>
+              <div className="flex items-center space-x-2 text-sm text-gray-600">
+                <Calendar className="w-4 h-4" />
+                {new Date(task.dueDate).toLocaleDateString('uz-UZ', { 
+                  year: 'numeric',
+                  month: 'long', 
+                  day: 'numeric' 
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Comments */}
+          {task.comments && task.comments.length > 0 && (
+            <div>
+              <h4 className="text-sm font-semibold text-gray-900 mb-3">Izohlar ({task.comments.length})</h4>
+              <div className="space-y-3">
+                {task.comments.map(comment => (
+                  <div key={comment.id} className="bg-gray-50 rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-gray-900">{comment.author}</span>
+                      <span className="text-xs text-gray-500">
+                        {new Date(comment.createdAt).toLocaleDateString('uz-UZ', {
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600">{comment.text}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Attachments */}
+          {task.attachments > 0 && (
+            <div>
+              <h4 className="text-sm font-semibold text-gray-900 mb-2">Ilovalar</h4>
+              <div className="flex items-center space-x-2 text-sm text-gray-600">
+                <Paperclip className="w-4 h-4" />
+                <span>{task.attachments} ta fayl biriktirilgan</span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Actions */}
+        <div className="px-6 py-4 border-t border-gray-100 flex justify-end space-x-3">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+          >
+            Yopish
+          </button>
+          <button className="px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+            Tahrir qilish
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // User Dropdown Component
 function UserDropdown({ isOpen, onClose, position }: { isOpen: boolean; onClose: () => void; position: { x: number; y: number } | null }) {
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -1232,7 +1406,110 @@ export default function App() {
                       </div>
         </header>
 
-        {activeView === 'profile' ? (
+        {activeView === 'dashboard' ? (
+          <div className="flex-1 overflow-y-auto px-6 py-6 custom-scrollbar">
+            <div className="max-w-7xl mx-auto">
+              <div className="mb-8">
+                <h1 className="text-2xl font-bold text-gray-900 tracking-tight">{t('dashboard')}</h1>
+                <p className="text-sm text-gray-500 mt-1">{t('manageTasks')}</p>
+              </div>
+              
+              {/* Task Cards Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {columns.flatMap(col => 
+                  col.tasks.map(task => (
+                    <div
+                      key={task.id}
+                      onClick={() => setSelectedTask(task)}
+                      className="bg-white rounded-xl border border-gray-200 p-4 cursor-pointer hover:shadow-lg transition-all duration-200 hover:border-blue-300 group"
+                    >
+                      {/* Task Header */}
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-gray-900 text-sm mb-1 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                            {task.title}
+                          </h3>
+                          {task.description && (
+                            <p className="text-xs text-gray-500 line-clamp-2 mb-2">
+                              {task.description}
+                            </p>
+                          )}
+                        </div>
+                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                          col.id === 'todo' ? 'bg-gray-100 text-gray-700' :
+                          col.id === 'in-progress' ? 'bg-blue-100 text-blue-700' :
+                          col.id === 'review' ? 'bg-yellow-100 text-yellow-700' :
+                          col.id === 'done' ? 'bg-green-100 text-green-700' :
+                          'bg-red-100 text-red-700'
+                        }`}>
+                          {col.id === 'todo' ? 'Bajarilishi kerak' :
+                           col.id === 'in-progress' ? 'Jarayonda' :
+                           col.id === 'review' ? 'Tekshirish' :
+                           col.id === 'done' ? 'Bajarildi' :
+                           'Bajarilmadi'}
+                        </span>
+                      </div>
+
+                      {/* Task Meta */}
+                      <div className="space-y-2">
+                        {/* Tags */}
+                        {task.tags && task.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {task.tags.slice(0, 2).map((tag, index) => (
+                              <span key={`${tag.text}-${index}`} className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${tag.color}`}>
+                                {tag.text}
+                              </span>
+                            ))}
+                            {task.tags.length > 2 && (
+                              <span className="text-xs text-gray-500">+{task.tags.length - 2}</span>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Assignee */}
+                        {task.assignee && (
+                          <div className="flex items-center text-xs text-gray-500">
+                            <div className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[8px] font-bold mr-1.5">
+                              {task.assignee.charAt(0)}
+                            </div>
+                            {task.assignee}
+                          </div>
+                        )}
+
+                        {/* Due Date */}
+                        {task.dueDate && (
+                          <div className="flex items-center text-xs text-gray-500">
+                            <Calendar className="w-3 h-3 mr-1" />
+                            {new Date(task.dueDate).toLocaleDateString('uz-UZ', { 
+                              month: 'short', 
+                              day: 'numeric' 
+                            })}
+                          </div>
+                        )}
+
+                        {/* Comments & Attachments */}
+                        <div className="flex items-center justify-between text-xs text-gray-400">
+                          {task.comments && task.comments.length > 0 && (
+                            <span className="flex items-center">
+                              <MessageSquare className="w-3 h-3 mr-1" />
+                              {task.comments.length}
+                            </span>
+                          )}
+                          {task.attachments > 0 && (
+                            <span className="flex items-center">
+                              <Paperclip className="w-3 h-3 mr-1" />
+                              {task.attachments}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        ) : activeView === 'profile' ? (
           <div className="flex-1 overflow-y-auto px-6 py-6 custom-scrollbar">
             <div className="max-w-3xl mx-auto">
               <div className="mb-8">
@@ -2384,6 +2661,14 @@ export default function App() {
       <FeedbackModal
         isOpen={isFeedbackModalOpen}
         onClose={() => setIsFeedbackModalOpen(false)}
+      />
+      
+      {/* Task Detail Modal */}
+      <TaskDetailModal
+        isOpen={!!selectedTask}
+        onClose={() => setSelectedTask(null)}
+        task={selectedTask}
+        columns={columns}
       />
     </div>
   );
