@@ -438,13 +438,13 @@ const initialData: ColumnData[] = [
   }
 ];
 
-// User Modal Component
-function UserModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-  const modalRef = useRef<HTMLDivElement>(null);
+// User Dropdown Component
+function UserDropdown({ isOpen, onClose, position }: { isOpen: boolean; onClose: () => void; position: { x: number; y: number } | null }) {
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         onClose();
       }
     };
@@ -466,61 +466,66 @@ function UserModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
     { id: 5, name: 'Alex Brown', avatar: 'https://i.pravatar.cc/100?img=5', initials: 'AB' }
   ];
 
-  if (!isOpen) return null;
+  if (!isOpen || !position) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity">
+    <div 
+      className="fixed z-50"
+      style={{ 
+        left: `${position.x}px`, 
+        top: `${position.y}px`,
+        transform: 'translate(-50%, 0)'
+      }}
+    >
       <div 
-        ref={modalRef}
-        className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[80vh] overflow-hidden transform transition-all"
+        ref={dropdownRef}
+        className="bg-white rounded-xl shadow-xl border border-gray-200 w-80 max-h-96 overflow-hidden transform transition-all"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-900">
+        <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-gray-900">
             Loyihada ishtirokchilar
           </h3>
           <button 
             onClick={onClose}
             className="p-1 hover:bg-gray-100 rounded-md transition-colors"
           >
-            <X className="w-4 h-4 text-gray-500" />
+            <X className="w-3 h-3 text-gray-500" />
           </button>
         </div>
 
-        {/* Users Grid */}
-        <div className="p-6 overflow-y-auto custom-scrollbar">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {users.map((user) => (
-              <div 
-                key={user.id}
-                className="flex items-center space-x-3 p-4 rounded-xl border border-gray-200 hover:border-blue-300 hover:bg-blue-50/30 transition-all cursor-pointer group"
-              >
-                <div className="h-12 w-12 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 text-white flex items-center justify-center font-semibold text-sm shadow-sm overflow-hidden flex-shrink-0">
-                  <img 
-                    src={user.avatar} 
-                    alt={user.name} 
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                      e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                    }}
-                  />
-                  <div className="hidden w-full h-full flex items-center justify-center">
-                    {user.initials}
-                  </div>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-sm font-semibold text-gray-900 group-hover:text-blue-600 transition-colors truncate">
-                    {user.name}
-                  </h4>
-                  <p className="text-xs text-gray-500 truncate">
-                    {user.name.toLowerCase().replace(' ', '.')}@taskly.uz
-                  </p>
+        {/* Users List */}
+        <div className="overflow-y-auto custom-scrollbar">
+          {users.map((user) => (
+            <div 
+              key={user.id}
+              className="flex items-center space-x-3 p-3 hover:bg-gray-50 transition-colors cursor-pointer group border-b border-gray-50 last:border-b-0"
+            >
+              <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 text-white flex items-center justify-center font-semibold text-xs shadow-sm overflow-hidden flex-shrink-0">
+                <img 
+                  src={user.avatar} 
+                  alt={user.name} 
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                  }}
+                />
+                <div className="hidden w-full h-full flex items-center justify-center">
+                  {user.initials}
                 </div>
               </div>
-            ))}
-          </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors truncate">
+                  {user.name}
+                </h4>
+                <p className="text-xs text-gray-500 truncate">
+                  {user.name.toLowerCase().replace(' ', '.')}@taskly.uz
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -625,8 +630,9 @@ export default function App() {
     columnTitle: ''
   });
 
-  // User modal state
-  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+  // User dropdown state
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+  const [userDropdownPosition, setUserDropdownPosition] = useState<{ x: number; y: number } | null>(null);
   
   // Tag management state
   const [isAddingTag, setIsAddingTag] = useState(false);
@@ -1177,7 +1183,14 @@ export default function App() {
             <div className="mt-4 sm:mt-0 flex items-center space-x-3">
               <div 
                 className="flex -space-x-2 overflow-hidden cursor-pointer hover:scale-105 transition-transform"
-                onClick={() => setIsUserModalOpen(true)}
+                onClick={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  setUserDropdownPosition({
+                    x: rect.left + rect.width / 2,
+                    y: rect.bottom + 8
+                  });
+                  setIsUserDropdownOpen(true);
+                }}
               >
                 <img className="inline-block h-8 w-8 rounded-full ring-2 ring-white" src="https://i.pravatar.cc/100?img=1" alt=""/>
                 <img className="inline-block h-8 w-8 rounded-full ring-2 ring-white" src="https://i.pravatar.cc/100?img=2" alt=""/>
@@ -2145,10 +2158,11 @@ export default function App() {
         onChangeColumnColor={handleChangeColumnColor}
       />
       
-      {/* User Modal */}
-      <UserModal
-        isOpen={isUserModalOpen}
-        onClose={() => setIsUserModalOpen(false)}
+      {/* User Dropdown */}
+      <UserDropdown
+        isOpen={isUserDropdownOpen}
+        onClose={() => setIsUserDropdownOpen(false)}
+        position={userDropdownPosition}
       />
     </div>
   );
