@@ -5,6 +5,7 @@ import { format, isToday } from 'date-fns';
 import { uz, ru, enUS } from 'date-fns/locale';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import Cropper from 'react-easy-crop';
+import ProfileDropdown from './ProfileDropdown';
 import { 
   LayoutDashboard, 
   KanbanSquare, 
@@ -465,6 +466,9 @@ export default function App() {
   // Dark mode state
   const [isDarkMode, setIsDarkMode] = useState(false);
   
+  // Profile dropdown state
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  
   // Tag management state
   const [isAddingTag, setIsAddingTag] = useState(false);
   const [newTagText, setNewTagText] = useState('');
@@ -844,7 +848,7 @@ export default function App() {
               <span className="absolute top-1.5 right-1.5 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span>
             </button>
             <div 
-              onClick={() => setActiveView('profile')}
+              onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
               className="h-8 w-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 text-white flex items-center justify-center font-semibold text-sm shadow-sm cursor-pointer border border-white ring-2 ring-transparent hover:ring-gray-200 transition-all overflow-hidden"
             >
               {userAvatar ? <img src={userAvatar} alt="User Avatar" className="w-full h-full object-cover" /> : 'JD'}
@@ -1934,6 +1938,15 @@ export default function App() {
           border-color: #111827 !important;
         }
       `}} />
+      
+      {/* Profile Dropdown */}
+      <ProfileDropdown
+        isOpen={isProfileDropdownOpen}
+        onClose={() => setIsProfileDropdownOpen(false)}
+        userAvatar={userAvatar}
+        userName="Jamshid Nurillayev"
+        userEmail="jamshid@example.com"
+      />
     </div>
   );
 }

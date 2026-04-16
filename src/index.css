@@ -225,6 +225,47 @@
   background-color: rgba(0, 0, 0, 0.4) !important;
 }
 
+/* Profile dropdown dark mode */
+.dark .bg-white {
+  background-color: #1a1f2e !important;
+}
+
+.dark .border-gray-200 {
+  border-color: #2d3748 !important;
+}
+
+.dark .border-gray-100 {
+  border-color: #4a5568 !important;
+}
+
+.dark .text-gray-900 {
+  color: #f7fafc !important;
+}
+
+.dark .text-gray-700 {
+  color: #cbd5e1 !important;
+}
+
+.dark .text-gray-500 {
+  color: #718096 !important;
+}
+
+.dark .text-gray-400 {
+  color: #4a5568 !important;
+}
+
+.dark .hover\:bg-gray-50:hover {
+  background-color: #2d3748 !important;
+}
+
+.dark .text-red-600 {
+  color: #f56565 !important;
+}
+
+.dark .hover\:bg-red-50:hover {
+  background-color: rgba(245, 101, 101, 0.1) !important;
+}
+
 /* Table styling improvements */
 .dark table {
   background-color: #1a1f2e !important;
