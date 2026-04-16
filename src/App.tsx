@@ -736,7 +736,7 @@ export default function App() {
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3 shadow-sm">
             <KanbanSquare className="text-white w-5 h-5" />
           </div>
-          <span className="font-bold text-lg tracking-tight">TaskFlow</span>
+          <span className="font-bold text-lg tracking-tight">Taskly</span>
         </div>
         
         <div className="flex-1 overflow-y-auto py-6 px-4 space-y-8 custom-scrollbar">
