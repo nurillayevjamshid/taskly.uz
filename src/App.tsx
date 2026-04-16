@@ -1628,7 +1628,54 @@ export default function App() {
               <div className="px-6 py-5 border-b border-gray-200">
                 <h3 className="text-lg font-semibold text-gray-900">{t('allTasks')}</h3>
               </div>
-              <div className="overflow-x-auto">
+              {/* Mobile: Card view */}
+              <div className="md:hidden p-3 space-y-3">
+                {allTasks.map(task => (
+                  <div
+                    key={task.id}
+                    onClick={() => setSelectedTask(task)}
+                    className="bg-gray-50 rounded-xl p-4 border border-gray-100 active:bg-gray-100 transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <h4 className="text-sm font-semibold text-gray-900 leading-snug pr-2">{task.title}</h4>
+                      <span className={`shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                        task.statusId === 'done' ? 'bg-green-100 text-green-800' :
+                        task.statusId === 'in-progress' ? 'bg-orange-100 text-orange-800' :
+                        task.statusId === 'review' ? 'bg-purple-100 text-purple-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {t(task.statusId)}
+                      </span>
+                    </div>
+                    {task.description && (
+                      <p className="text-xs text-gray-500 line-clamp-2 mb-2">{task.description}</p>
+                    )}
+                    <div className="flex items-center justify-between">
+                      <div className="flex flex-wrap gap-1">
+                        {task.tags.slice(0, 2).map((tag, i) => (
+                          <span key={i} className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${tag.color}`}>
+                            {tag.text}
+                          </span>
+                        ))}
+                        {task.tags.length > 2 && (
+                          <span className="text-[10px] text-gray-400">+{task.tags.length - 2}</span>
+                        )}
+                      </div>
+                      <div className="flex items-center text-xs text-gray-400">
+                        <Calendar className="w-3 h-3 mr-1" />
+                        {task.dueDate}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {allTasks.length === 0 && (
+                  <div className="py-8 text-center text-gray-500 text-sm">
+                    {t('noTasks')}
+                  </div>
+                )}
+              </div>
+              {/* Desktop: Table view */}
+              <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider">
