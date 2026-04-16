@@ -111,6 +111,163 @@
   background-color: #0f172a !important;
 }
 
+/* Additional dark mode improvements */
+.dark .bg-slate-50 {
+  background-color: #1e293b !important;
+}
+
+.dark .bg-slate-100 {
+  background-color: #334155 !important;
+}
+
+.dark .bg-slate-200 {
+  background-color: #475569 !important;
+}
+
+.dark .text-slate-900 {
+  color: #e2e8f0 !important;
+}
+
+.dark .text-slate-800 {
+  color: #cbd5e1 !important;
+}
+
+.dark .text-slate-700 {
+  color: #94a3b8 !important;
+}
+
+.dark .text-slate-600 {
+  color: #64748b !important;
+}
+
+.dark .text-slate-500 {
+  color: #475569 !important;
+}
+
+.dark .text-slate-400 {
+  color: #334155 !important;
+}
+
+.dark .border-slate-200 {
+  border-color: #334155 !important;
+}
+
+.dark .border-slate-100 {
+  border-color: #475569 !important;
+}
+
+.dark .border-slate-300 {
+  border-color: #475569 !important;
+}
+
+.dark .hover\:bg-slate-50:hover {
+  background-color: #334155 !important;
+}
+
+.dark .hover\:bg-slate-100:hover {
+  background-color: #475569 !important;
+}
+
+.dark .hover\:text-slate-900:hover {
+  color: #e2e8f0 !important;
+}
+
+/* Form elements */
+.dark input {
+  background-color: #1e293b !important;
+  color: #e2e8f0 !important;
+  border-color: #475569 !important;
+}
+
+.dark input:focus {
+  background-color: #0f172a !important;
+  border-color: #3b82f6 !important;
+}
+
+.dark input::placeholder {
+  color: #64748b !important;
+}
+
+/* Button improvements */
+.dark button {
+  color: #e2e8f0 !important;
+}
+
+.dark .bg-white\/90 {
+  background-color: rgba(30, 41, 59, 0.9) !important;
+}
+
+.dark .bg-white\/95 {
+  background-color: rgba(30, 41, 59, 0.95) !important;
+}
+
+.dark .bg-white\/50 {
+  background-color: rgba(30, 41, 59, 0.5) !important;
+}
+
+.dark .bg-black\/50 {
+  background-color: rgba(0, 0, 0, 0.7) !important;
+}
+
+.dark .bg-black\/25 {
+  background-color: rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Modal and overlay improvements */
+.dark .backdrop-blur-sm {
+  backdrop-filter: blur(4px) !important;
+}
+
+/* Calendar improvements */
+.dark .react-datepicker {
+  background-color: #1e293b !important;
+  border-color: #475569 !important;
+}
+
+.dark .react-datepicker__header {
+  background-color: #334155 !important;
+  border-bottom-color: #475569 !important;
+}
+
+.dark .react-datepicker__day {
+  color: #e2e8f0 !important;
+}
+
+.dark .react-datepicker__day:hover {
+  background-color: #475569 !important;
+}
+
+.dark .react-datepicker__day--selected {
+  background-color: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
+.dark .react-datepicker__current-month {
+  color: #e2e8f0 !important;
+}
+
+.dark .react-datepicker__navigation {
+  color: #e2e8f0 !important;
+}
+
+.dark .react-datepicker__triangle {
+  border-bottom-color: #1e293b !important;
+}
+
+.dark .react-datepicker__triangle::before {
+  border-bottom-color: #475569 !important;
+}
+
+/* Cropper improvements */
+.dark .react-easy-crop-container {
+  background-color: #0f172a !important;
+}
+
+.dark .react-easy-crop-crop-area {
+  border-color: #3b82f6 !important;
+}
+
+/* Scrollbar improvements */
 .dark .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
 }
@@ -126,4 +283,55 @@
 
 .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #64748b;
+}
+
+/* Better contrast for text */
+.dark .text-zinc-900 {
+  color: #e2e8f0 !important;
+}
+
+.dark .text-zinc-800 {
+  color: #cbd5e1 !important;
+}
+
+.dark .text-zinc-700 {
+  color: #94a3b8 !important;
+}
+
+.dark .text-zinc-600 {
+  color: #64748b !important;
+}
+
+.dark .text-zinc-500 {
+  color: #475569 !important;
+}
+
+.dark .text-zinc-400 {
+  color: #334155 !important;
+}
+
+/* Background improvements */
+.dark .bg-zinc-50 {
+  background-color: #1e293b !important;
+}
+
+.dark .bg-zinc-100 {
+  background-color: #334155 !important;
+}
+
+.dark .bg-zinc-200 {
+  background-color: #475569 !important;
+}
+
+/* Border improvements */
+.dark .border-zinc-200 {
+  border-color: #334155 !important;
+}
+
+.dark .border-zinc-100 {
+  border-color: #475569 !important;
+}
+
+.dark .border-zinc-300 {
+  border-color: #475569 !important;
 }
