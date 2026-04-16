@@ -462,12 +462,24 @@ export default function App() {
   // Comment management state
   const [newCommentText, setNewCommentText] = useState('');
 
+  // Dark mode state
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  
   // Tag management state
   const [isAddingTag, setIsAddingTag] = useState(false);
   const [newTagText, setNewTagText] = useState('');
-  const [newTagColor, setNewTagColor] = useState('bg-blue-100 text-blue-700');
+  const [newTagColor, setNewTagColor] = useState(isDarkMode ? 'bg-blue-900 text-blue-300' : 'bg-blue-100 text-blue-700');
 
-  const tagColors = [
+  const tagColors = isDarkMode ? [
+    { bg: 'bg-blue-900', text: 'text-blue-300', value: 'bg-blue-900 text-blue-300' },
+    { bg: 'bg-purple-900', text: 'text-purple-300', value: 'bg-purple-900 text-purple-300' },
+    { bg: 'bg-pink-900', text: 'text-pink-300', value: 'bg-pink-900 text-pink-300' },
+    { bg: 'bg-orange-900', text: 'text-orange-300', value: 'bg-orange-900 text-orange-300' },
+    { bg: 'bg-green-900', text: 'text-green-300', value: 'bg-green-900 text-green-300' },
+    { bg: 'bg-red-900', text: 'text-red-300', value: 'bg-red-900 text-red-300' },
+    { bg: 'bg-yellow-900', text: 'text-yellow-300', value: 'bg-yellow-900 text-yellow-300' },
+    { bg: 'bg-gray-800', text: 'text-gray-300', value: 'bg-gray-800 text-gray-300' },
+  ] : [
     { bg: 'bg-blue-100', text: 'text-blue-700', value: 'bg-blue-100 text-blue-700' },
     { bg: 'bg-purple-100', text: 'text-purple-700', value: 'bg-purple-100 text-purple-700' },
     { bg: 'bg-pink-100', text: 'text-pink-700', value: 'bg-pink-100 text-pink-700' },
@@ -479,6 +491,20 @@ export default function App() {
   ];
 
   const t = (key: keyof typeof translations['uz']) => translations[lang][key] || key;
+  
+  // Toggle dark mode
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+  };
+  
+  // Apply dark mode class to body
+  useEffect(() => {
+    if (isDarkMode) {
+      document.body.classList.add('dark');
+    } else {
+      document.body.classList.remove('dark');
+    }
+  }, [isDarkMode]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -919,8 +945,11 @@ export default function App() {
                       <h4 className="text-sm font-medium text-gray-900">{t('darkMode')}</h4>
                       <p className="text-sm text-gray-500">{t('switchTheme')}</p>
                     </div>
-                    <button className="bg-gray-200 relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                      <span className="translate-x-0 pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
+                    <button 
+                      onClick={toggleDarkMode}
+                      className={`${isDarkMode ? 'bg-blue-600' : 'bg-gray-200'} relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
+                    >
+                      <span className={`${isDarkMode ? 'translate-x-5' : 'translate-x-0'} pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out`}></span>
                     </button>
                   </div>
                 </div>
