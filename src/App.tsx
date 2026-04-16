@@ -1114,11 +1114,35 @@ export default function App() {
       <aside 
         className={`${isSidebarOpen ? 'w-64 translate-x-0 opacity-100' : 'w-0 -translate-x-full opacity-0'} transition-all duration-300 ease-in-out shrink-0 bg-white border-r border-gray-200 flex flex-col h-full z-20 fixed md:relative md:translate-x-0 md:opacity-100 md:w-64 overflow-hidden`}
       >
-        <div className="h-16 flex items-center px-6 border-b border-gray-100">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3 shadow-sm">
-            <KanbanSquare className="text-white w-5 h-5" />
+        <div className="h-16 flex items-center justify-between px-6 border-b border-gray-100">
+          <div className="flex items-center">
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3 shadow-sm">
+              <KanbanSquare className="text-white w-5 h-5" />
+            </div>
+            <span className="font-bold text-lg tracking-tight">Taskly</span>
           </div>
-          <span className="font-bold text-lg tracking-tight">Taskly</span>
+          {/* Mobile: Bell & Profile in sidebar */}
+          <div className="flex md:hidden items-center space-x-2">
+            <button 
+              onClick={() => {
+                setIsNotificationDropdownOpen(!isNotificationDropdownOpen);
+                setIsSidebarOpen(false);
+              }}
+              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full relative transition-colors"
+            >
+              <Bell className="w-5 h-5" />
+              <span className="absolute top-1.5 right-1.5 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span>
+            </button>
+            <div 
+              onClick={() => {
+                setIsProfileDropdownOpen(!isProfileDropdownOpen);
+                setIsSidebarOpen(false);
+              }}
+              className="h-8 w-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 text-white flex items-center justify-center font-semibold text-sm shadow-sm cursor-pointer border border-white ring-2 ring-transparent hover:ring-gray-200 transition-all overflow-hidden"
+            >
+              {userAvatar ? <img src={userAvatar} alt="User Avatar" className="w-full h-full object-cover" /> : 'JD'}
+            </div>
+          </div>
         </div>
         
         <div className="flex-1 overflow-y-auto py-6 px-4 space-y-8 custom-scrollbar">
@@ -1213,23 +1237,6 @@ export default function App() {
             >
               <Menu className="w-5 h-5" />
             </button>
-            
-            {/* Mobile: Notification Bell */}
-            <button 
-              onClick={() => setIsNotificationDropdownOpen(!isNotificationDropdownOpen)}
-              className="md:hidden p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full relative transition-colors"
-            >
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-1.5 right-1.5 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span>
-            </button>
-            
-            {/* Mobile: Profile Icon */}
-            <div 
-              onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
-              className="md:hidden h-8 w-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 text-white flex items-center justify-center font-semibold text-sm shadow-sm cursor-pointer border border-white ring-2 ring-transparent hover:ring-gray-200 transition-all overflow-hidden"
-            >
-              {userAvatar ? <img src={userAvatar} alt="User Avatar" className="w-full h-full object-cover" /> : 'JD'}
-            </div>
             
             {/* Desktop: Notification Bell */}
             <button 
