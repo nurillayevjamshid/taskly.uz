@@ -328,6 +328,26 @@
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3) !important;
 }
 
+.dark .shadow-md {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2) !important;
+}
+
+.dark .hover\:shadow-md:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2) !important;
+}
+
+.dark .bg-green-50 {
+  background-color: #064e3b !important;
+}
+
+.dark .border-green-200 {
+  border-color: #065f46 !important;
+}
+
+.dark .space-y-3 > :not([hidden]) ~ :not([hidden]) {
+  margin-bottom: 0.75rem !important;
+}
+
 /* Table styling improvements */
 .dark table {
   background-color: #1a1f2e !important;

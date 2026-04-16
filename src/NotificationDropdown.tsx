@@ -147,36 +147,36 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
         </div>
 
         {/* Notifications List */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto p-4">
           {filteredNotifications.length === 0 ? (
             <div className="p-8 text-center text-gray-500">
               <Bell className="w-8 h-8 mx-auto mb-2 text-gray-400" />
               <p className="text-sm">Bildirishnomalar yo'q</p>
             </div>
           ) : (
-            <div className="divide-y divide-gray-100">
+            <div className="space-y-3">
               {filteredNotifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className={`p-4 hover:bg-gray-50 transition-colors cursor-pointer relative ${
-                    !notification.isRead ? 'bg-blue-50' : 'bg-white'
+                  className={`bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-all cursor-pointer relative ${
+                    !notification.isRead ? 'bg-green-50 border-green-200' : ''
                   }`}
                 >
                   <div className="flex items-start space-x-4">
                     {/* Icon */}
                     <div className="flex-shrink-0 mt-0.5">
                       {notification.type === 'task' && (
-                        <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center shadow-sm">
-                          <CheckCircle2 className="w-5 h-5 text-white" />
+                        <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center shadow-md">
+                          <CheckCircle2 className="w-6 h-6 text-white" />
                         </div>
                       )}
                       {notification.type === 'reminder' && (
-                        <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center shadow-sm">
-                          <Clock className="w-5 h-5 text-white" />
+                        <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center shadow-md">
+                          <Clock className="w-6 h-6 text-white" />
                         </div>
                       )}
                       {notification.type === 'activity' && (
-                        <div className="w-10 h-10 bg-gradient-to-tr from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-sm font-semibold shadow-sm">
+                        <div className="w-12 h-12 bg-gradient-to-tr from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-sm font-semibold shadow-md">
                           {notification.userInitials}
                         </div>
                       )}
@@ -192,16 +192,18 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
                           {notification.description}
                         </p>
                         
-                        <div className="mt-2 space-y-1">
+                        <div className="mt-3 space-y-2">
                           <p className="text-xs text-gray-500 font-medium">
                             {notification.date}
                             {notification.time && ` • ${notification.time}`}
                           </p>
                           
                           {notification.status && (
-                            <p className="text-xs text-gray-600 bg-gray-100 inline-block px-2 py-1 rounded-md">
-                              {notification.status}
-                            </p>
+                            <div className="inline-flex items-center">
+                              <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-md">
+                                {notification.status}
+                              </span>
+                            </div>
                           )}
                           
                           {notification.userName && (
@@ -216,7 +218,7 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
                     {/* Unread indicator */}
                     {!notification.isRead && (
                       <div className="absolute top-4 right-4">
-                        <div className="w-2.5 h-2.5 bg-blue-500 rounded-full shadow-sm"></div>
+                        <div className="w-3 h-3 bg-blue-500 rounded-full shadow-md"></div>
                       </div>
                     )}
                   </div>
