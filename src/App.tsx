@@ -799,6 +799,23 @@ export default function App() {
     return column.color ? `border-t-4 ${column.color}` : 'border-t-4 border-gray-500';
   };
 
+  const getCardBackgroundColor = (column: ColumnData) => {
+    if (!column.color) return 'bg-white';
+    
+    const colorMap: { [key: string]: string } = {
+      'border-blue-500': 'bg-blue-50',
+      'border-yellow-500': 'bg-yellow-50',
+      'border-purple-500': 'bg-purple-50',
+      'border-green-500': 'bg-green-50',
+      'border-red-500': 'bg-red-50',
+      'border-orange-500': 'bg-orange-50',
+      'border-pink-500': 'bg-pink-50',
+      'border-gray-500': 'bg-gray-50'
+    };
+    
+    return colorMap[column.color] || 'bg-white';
+  };
+
   const formatDateTime = (dateString: string) => {
     if (!dateString) return '';
     try {
@@ -1126,7 +1143,7 @@ export default function App() {
                                 onClick={() => setSelectedTask(task)}
                                 className={`group relative outline-none ${snapshot.isDragging ? 'z-50' : ''}`}
                               >
-                                <div className={`bg-white p-4 rounded-xl border cursor-pointer transition-shadow duration-200 ${snapshot.isDragging ? 'shadow-xl ring-2 ring-blue-500/50' : 'shadow-sm hover:shadow-md'} ${dueToday && col.id !== 'done' && col.id !== 'failed' ? 'border-red-300 ring-1 ring-red-300 bg-red-50/20' : 'border-gray-200'}`}>
+                                <div className={`${getCardBackgroundColor(col)} p-4 rounded-xl border cursor-pointer transition-shadow duration-200 ${snapshot.isDragging ? 'shadow-xl ring-2 ring-blue-500/50' : 'shadow-sm hover:shadow-md'} ${dueToday && col.id !== 'done' && col.id !== 'failed' ? 'border-red-300 ring-1 ring-red-300 bg-red-50/40' : 'border-gray-200'}`}>
                                   <div className="flex flex-wrap gap-2 mb-3">
                                   {task.tags.map((tag, i) => (
                                     <span key={i} className={`text-[10px] font-semibold px-2 py-1 rounded-md ${tag.color}`}>
