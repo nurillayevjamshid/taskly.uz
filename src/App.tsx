@@ -708,7 +708,7 @@ export default function App() {
   const [columns, setColumns] = useState<ColumnData[]>(initialData);
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
   const [draggingColId, setDraggingColId] = useState<string | null>(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeView, setActiveView] = useState<'dashboard' | 'board' | 'settings' | 'profile'>('dashboard');
   const [lang, setLang] = useState<Language>('uz');
   const [boards, setBoards] = useState<string[]>(['productRoadmap', 'Marketing Campaign', 'Design System']);
@@ -1110,7 +1110,7 @@ export default function App() {
       
       {/* Sidebar */}
       <aside 
-        className={`${isSidebarOpen ? 'w-64' : 'w-0 -translate-x-full'} transition-all duration-300 ease-in-out shrink-0 bg-white border-r border-gray-200 flex flex-col h-full z-20 absolute md:relative`}
+        className={`${isSidebarOpen ? 'w-64 translate-x-0' : 'w-0 -translate-x-full'} transition-all duration-300 ease-in-out shrink-0 bg-white border-r border-gray-200 flex flex-col h-full z-20 fixed md:relative md:translate-x-0 md:w-64`}
       >
         <div className="h-16 flex items-center px-6 border-b border-gray-100">
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3 shadow-sm">
@@ -1174,12 +1174,6 @@ export default function App() {
         {/* Topbar */}
         <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 shrink-0">
           <div className="flex items-center flex-1">
-            <button 
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-2 mr-4 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 md:hidden transition-colors"
-            >
-              <Menu className="w-5 h-5" />
-            </button>
             <div className="max-w-md w-full relative hidden sm:block">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Search className="h-4 w-4 text-gray-400" />
