@@ -158,65 +158,67 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
               {filteredNotifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className={`p-4 hover:bg-gray-50 transition-colors cursor-pointer ${
-                    !notification.isRead ? 'bg-blue-50' : ''
+                  className={`p-4 hover:bg-gray-50 transition-colors cursor-pointer relative ${
+                    !notification.isRead ? 'bg-blue-50' : 'bg-white'
                   }`}
                 >
-                  <div className="flex items-start space-x-3">
+                  <div className="flex items-start space-x-4">
                     {/* Icon */}
-                    <div className="flex-shrink-0 mt-1">
+                    <div className="flex-shrink-0 mt-0.5">
                       {notification.type === 'task' && (
-                        <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-                          <CheckCircle2 className="w-3 h-3 text-white" />
+                        <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center shadow-sm">
+                          <CheckCircle2 className="w-5 h-5 text-white" />
                         </div>
                       )}
                       {notification.type === 'reminder' && (
-                        <div className="w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center">
-                          <Clock className="w-3 h-3 text-white" />
+                        <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center shadow-sm">
+                          <Clock className="w-5 h-5 text-white" />
                         </div>
                       )}
                       {notification.type === 'activity' && (
-                        <div className="w-8 h-8 bg-gradient-to-tr from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-xs font-semibold">
+                        <div className="w-10 h-10 bg-gradient-to-tr from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-sm font-semibold shadow-sm">
                           {notification.userInitials}
                         </div>
                       )}
                     </div>
 
                     {/* Content */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900">
-                            {notification.type === 'reminder' && 'Eslatma: '}
-                            {notification.description}
+                    <div className="flex-1 min-w-0 pr-8">
+                      <div className="flex flex-col">
+                        <p className="text-sm font-medium text-gray-900 leading-relaxed">
+                          {notification.type === 'reminder' && (
+                            <span className="text-orange-600 font-semibold">Eslatma: </span>
+                          )}
+                          {notification.description}
+                        </p>
+                        
+                        <div className="mt-2 space-y-1">
+                          <p className="text-xs text-gray-500 font-medium">
+                            {notification.date}
+                            {notification.time && ` • ${notification.time}`}
                           </p>
                           
-                          <div className="mt-1 space-y-1">
-                            <p className="text-xs text-gray-500">
-                              {notification.date}
-                              {notification.time && `, ${notification.time}`}
+                          {notification.status && (
+                            <p className="text-xs text-gray-600 bg-gray-100 inline-block px-2 py-1 rounded-md">
+                              {notification.status}
                             </p>
-                            
-                            {notification.status && (
-                              <p className="text-xs text-gray-600">{notification.status}</p>
-                            )}
-                            
-                            {notification.userName && (
-                              <p className="text-xs text-gray-600">
-                                {notification.userName} tomonidan amalga oshirildi
-                              </p>
-                            )}
-                          </div>
+                          )}
+                          
+                          {notification.userName && (
+                            <p className="text-xs text-gray-600 italic">
+                              {notification.userName} tomonidan amalga oshirildi
+                            </p>
+                          )}
                         </div>
-
-                        {/* Unread indicator */}
-                        {!notification.isRead && (
-                          <div className="ml-2 mt-1">
-                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                          </div>
-                        )}
                       </div>
                     </div>
+
+                    {/* Unread indicator */}
+                    {!notification.isRead && (
+                      <div className="absolute top-4 right-4">
+                        <div className="w-2.5 h-2.5 bg-blue-500 rounded-full shadow-sm"></div>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}

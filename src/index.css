@@ -291,6 +291,43 @@
   background-color: #f97316 !important;
 }
 
+/* Enhanced notification dark mode */
+.dark .bg-white {
+  background-color: #1a1f2e !important;
+}
+
+.dark .text-orange-600 {
+  color: #fb923c !important;
+}
+
+.dark .bg-gray-100 {
+  background-color: #2d3748 !important;
+}
+
+.dark .text-gray-900 {
+  color: #f7fafc !important;
+}
+
+.dark .text-gray-500 {
+  color: #718096 !important;
+}
+
+.dark .text-gray-600 {
+  color: #a0aec0 !important;
+}
+
+.dark .hover\:bg-gray-50:hover {
+  background-color: #2d3748 !important;
+}
+
+.dark .divide-gray-100 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #4a5568 !important;
+}
+
+.dark .shadow-sm {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3) !important;
+}
+
 /* Table styling improvements */
 .dark table {
   background-color: #1a1f2e !important;
