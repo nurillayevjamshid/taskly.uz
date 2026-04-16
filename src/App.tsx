@@ -1589,7 +1589,7 @@ export default function App() {
                     <ListTodo className="w-5 h-5 text-blue-600" />
                   </div>
                 </div>
-                <div className="text-3xl font-bold text-gray-900">{totalTasks}</div>
+                <div className="text-3xl font-bold text-gray-900">{totalTasks} <span className="text-lg font-medium text-gray-500">ta</span></div>
               </div>
               
               <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
@@ -1599,7 +1599,7 @@ export default function App() {
                     <Clock className="w-5 h-5 text-orange-600" />
                   </div>
                 </div>
-                <div className="text-3xl font-bold text-gray-900">{inProgressTasks}</div>
+                <div className="text-3xl font-bold text-gray-900">{inProgressTasks} <span className="text-lg font-medium text-gray-500">ta</span></div>
               </div>
 
               <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
@@ -1609,7 +1609,7 @@ export default function App() {
                     <CheckCircle2 className="w-5 h-5 text-green-600" />
                   </div>
                 </div>
-                <div className="text-3xl font-bold text-gray-900">{doneTasks}</div>
+                <div className="text-3xl font-bold text-gray-900">{doneTasks} <span className="text-lg font-medium text-gray-500">ta</span></div>
               </div>
 
               <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
