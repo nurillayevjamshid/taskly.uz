@@ -6,6 +6,7 @@ import { uz, ru, enUS } from 'date-fns/locale';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import Cropper from 'react-easy-crop';
 import ProfileDropdown from './ProfileDropdown';
+import NotificationDropdown from './NotificationDropdown';
 import { 
   LayoutDashboard, 
   KanbanSquare, 
@@ -469,6 +470,9 @@ export default function App() {
   // Profile dropdown state
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   
+  // Notification dropdown state
+  const [isNotificationDropdownOpen, setIsNotificationDropdownOpen] = useState(false);
+  
   // Tag management state
   const [isAddingTag, setIsAddingTag] = useState(false);
   const [newTagText, setNewTagText] = useState('');
@@ -843,7 +847,10 @@ export default function App() {
           </div>
           
           <div className="flex items-center space-x-4">
-            <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full relative transition-colors">
+            <button 
+              onClick={() => setIsNotificationDropdownOpen(!isNotificationDropdownOpen)}
+              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full relative transition-colors"
+            >
               <Bell className="w-5 h-5" />
               <span className="absolute top-1.5 right-1.5 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span>
             </button>
@@ -1946,6 +1953,12 @@ export default function App() {
         userAvatar={userAvatar}
         userName="Jamshid Nurillayev"
         userEmail="jamshid@example.com"
+      />
+      
+      {/* Notification Dropdown */}
+      <NotificationDropdown
+        isOpen={isNotificationDropdownOpen}
+        onClose={() => setIsNotificationDropdownOpen(false)}
       />
     </div>
   );

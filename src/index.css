@@ -266,6 +266,31 @@
   background-color: rgba(245, 101, 101, 0.1) !important;
 }
 
+/* Notification dropdown dark mode */
+.dark .bg-blue-50 {
+  background-color: #1e3a8a !important;
+}
+
+.dark .text-blue-600 {
+  color: #3b82f6 !important;
+}
+
+.dark .text-blue-700 {
+  color: #2563eb !important;
+}
+
+.dark .divide-gray-100 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #2d3748 !important;
+}
+
+.dark .bg-green-500 {
+  background-color: #10b981 !important;
+}
+
+.dark .bg-orange-500 {
+  background-color: #f97316 !important;
+}
+
 /* Table styling improvements */
 .dark table {
   background-color: #1a1f2e !important;
