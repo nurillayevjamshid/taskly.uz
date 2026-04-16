@@ -1110,7 +1110,7 @@ export default function App() {
       
       {/* Sidebar */}
       <aside 
-        className={`${isSidebarOpen ? 'w-64 translate-x-0' : 'w-0 -translate-x-full'} transition-all duration-300 ease-in-out shrink-0 bg-white border-r border-gray-200 flex flex-col h-full z-20 fixed md:relative md:translate-x-0 md:w-64`}
+        className={`${isSidebarOpen ? 'w-64 translate-x-0 opacity-100' : 'w-0 -translate-x-full opacity-0'} transition-all duration-300 ease-in-out shrink-0 bg-white border-r border-gray-200 flex flex-col h-full z-20 fixed md:relative md:translate-x-0 md:opacity-100 md:w-64 overflow-hidden`}
       >
         <div className="h-16 flex items-center px-6 border-b border-gray-100">
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3 shadow-sm">
@@ -1124,21 +1124,30 @@ export default function App() {
             <p className="px-2 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">{t('menu')}</p>
             <nav className="space-y-1">
               <button 
-                onClick={() => setActiveView('dashboard')}
+                onClick={() => {
+                  setActiveView('dashboard');
+                  setIsSidebarOpen(false);
+                }}
                 className={`w-full flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors ${activeView === 'dashboard' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}
               >
                 <LayoutDashboard className={`w-4 h-4 mr-3 ${activeView === 'dashboard' ? 'text-blue-600' : 'text-gray-400'}`} />
                 {t('dashboard')}
               </button>
               <button 
-                onClick={() => setActiveView('board')}
+                onClick={() => {
+                  setActiveView('board');
+                  setIsSidebarOpen(false);
+                }}
                 className={`w-full flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors ${activeView === 'board' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}
               >
                 <KanbanSquare className={`w-4 h-4 mr-3 ${activeView === 'board' ? 'text-blue-600' : 'text-gray-400'}`} />
                 {t('boards')}
               </button>
               <button 
-                onClick={() => setActiveView('settings')}
+                onClick={() => {
+                  setActiveView('settings');
+                  setIsSidebarOpen(false);
+                }}
                 className={`w-full flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors ${activeView === 'settings' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}
               >
                 <Settings className={`w-4 h-4 mr-3 ${activeView === 'settings' ? 'text-blue-600' : 'text-gray-400'}`} />
@@ -1212,14 +1221,7 @@ export default function App() {
               {userAvatar ? <img src={userAvatar} alt="User Avatar" className="w-full h-full object-cover" /> : 'JD'}
             </div>
             
-            {/* Mobile: Profile Icon (now acts as menu) */}
-            <div 
-              onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
-              className="md:hidden h-8 w-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 text-white flex items-center justify-center font-semibold text-sm shadow-sm cursor-pointer border border-white ring-2 ring-transparent hover:ring-gray-200 transition-all overflow-hidden"
-            >
-              {userAvatar ? <img src={userAvatar} alt="User Avatar" className="w-full h-full object-cover" /> : 'JD'}
-            </div>
-          </div>
+                      </div>
         </header>
 
         {activeView === 'profile' ? (
