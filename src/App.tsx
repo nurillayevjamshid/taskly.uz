@@ -56,6 +56,7 @@ type ColumnData = {
   id: string;
   title: string;
   tasks: Task[];
+  color?: string;
 };
 
 const createImage = (url: string) =>
@@ -335,6 +336,7 @@ const initialData: ColumnData[] = [
   {
     id: 'todo',
     title: 'To Do',
+    color: 'border-blue-500',
     tasks: [
       {
         id: 't1',
@@ -369,6 +371,7 @@ const initialData: ColumnData[] = [
   {
     id: 'in-progress',
     title: 'In Progress',
+    color: 'border-yellow-500',
     tasks: [
       {
         id: 't3',
@@ -392,6 +395,7 @@ const initialData: ColumnData[] = [
   {
     id: 'review',
     title: 'Review',
+    color: 'border-purple-500',
     tasks: [
       {
         id: 't5',
@@ -411,6 +415,7 @@ const initialData: ColumnData[] = [
   {
     id: 'done',
     title: 'Done',
+    color: 'border-green-500',
     tasks: [
       {
         id: 't4',
@@ -428,6 +433,7 @@ const initialData: ColumnData[] = [
   {
     id: 'failed',
     title: 'Failed',
+    color: 'border-red-500',
     tasks: []
   }
 ];
@@ -495,6 +501,14 @@ export default function App() {
   const handleDuplicateColumn = () => {
     // TODO: Implement column duplication functionality
     console.log('Duplicate column:', columnOptionsModal.columnId);
+  };
+
+  const handleChangeColumnColor = (color: string) => {
+    setColumns(prev => prev.map(col => 
+      col.id === columnOptionsModal.columnId 
+        ? { ...col, color }
+        : col
+    ));
   };
 
   const mockUsers = ['Jane Smith', 'Mike Johnson', 'John Doe', 'You'];
@@ -781,15 +795,8 @@ export default function App() {
     });
   };
 
-  const getColumnColor = (id: string) => {
-    switch(id) {
-      case 'todo': return 'border-t-4 border-blue-500';
-      case 'in-progress': return 'border-t-4 border-yellow-500';
-      case 'review': return 'border-t-4 border-purple-500';
-      case 'done': return 'border-t-4 border-green-500';
-      case 'failed': return 'border-t-4 border-red-500';
-      default: return 'border-t-4 border-gray-500';
-    }
+  const getColumnColor = (column: ColumnData) => {
+    return column.color ? `border-t-4 ${column.color}` : 'border-t-4 border-gray-500';
   };
 
   const formatDateTime = (dateString: string) => {
@@ -1086,7 +1093,7 @@ export default function App() {
                     <div 
                       ref={provided.innerRef}
                       {...provided.droppableProps}
-                      className={`flex flex-col w-80 shrink-0 max-h-full rounded-xl transition-colors duration-200 ${getColumnColor(col.id)} ${snapshot.isDraggingOver ? 'bg-gray-200/80' : 'bg-gray-100/80'}`}
+                      className={`flex flex-col w-80 shrink-0 max-h-full rounded-xl transition-colors duration-200 ${getColumnColor(col)} ${snapshot.isDraggingOver ? 'bg-gray-200/80' : 'bg-gray-100/80'}`}
                     >
                       {/* Column Header */}
                       <div className="p-4 flex items-center justify-between shrink-0">
@@ -2023,6 +2030,7 @@ export default function App() {
         onDeleteColumn={handleDeleteColumn}
         onArchiveColumn={handleArchiveColumn}
         onDuplicateColumn={handleDuplicateColumn}
+        onChangeColumnColor={handleChangeColumnColor}
       />
     </div>
   );

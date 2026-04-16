@@ -5,7 +5,8 @@ import {
   Archive, 
   Copy, 
   Settings,
-  X
+  X,
+  Palette
 } from 'lucide-react';
 
 interface ColumnOptionsModalProps {
@@ -17,6 +18,7 @@ interface ColumnOptionsModalProps {
   onDeleteColumn: () => void;
   onArchiveColumn: () => void;
   onDuplicateColumn: () => void;
+  onChangeColumnColor: (color: string) => void;
 }
 
 export default function ColumnOptionsModal({
@@ -27,9 +29,21 @@ export default function ColumnOptionsModal({
   onEditColumn,
   onDeleteColumn,
   onArchiveColumn,
-  onDuplicateColumn
+  onDuplicateColumn,
+  onChangeColumnColor
 }: ColumnOptionsModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
+
+  const colors = [
+    { name: 'blue', class: 'border-blue-500', bgClass: 'bg-blue-500' },
+    { name: 'yellow', class: 'border-yellow-500', bgClass: 'bg-yellow-500' },
+    { name: 'purple', class: 'border-purple-500', bgClass: 'bg-purple-500' },
+    { name: 'green', class: 'border-green-500', bgClass: 'bg-green-500' },
+    { name: 'red', class: 'border-red-500', bgClass: 'bg-red-500' },
+    { name: 'orange', class: 'border-orange-500', bgClass: 'bg-orange-500' },
+    { name: 'pink', class: 'border-pink-500', bgClass: 'bg-pink-500' },
+    { name: 'gray', class: 'border-gray-500', bgClass: 'bg-gray-500' }
+  ];
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -104,6 +118,29 @@ export default function ColumnOptionsModal({
               <Archive className="w-4 h-4 mr-3 text-gray-400 group-hover:text-gray-600" />
               <span>Ustunni arxivlash</span>
             </button>
+            
+            <div className="border-t border-gray-100 my-1"></div>
+            
+            <div className="px-4 py-3">
+              <div className="flex items-center mb-3">
+                <Palette className="w-4 h-4 mr-2 text-gray-400" />
+                <span className="text-sm font-medium text-gray-700">Rangni o'zgartirish</span>
+                <span className="ml-auto text-xs text-gray-400">PREMIUM</span>
+              </div>
+              <div className="grid grid-cols-8 gap-2">
+                {colors.map((color) => (
+                  <button
+                    key={color.name}
+                    onClick={() => {
+                      onChangeColumnColor(color.class);
+                      onClose();
+                    }}
+                    className={`w-8 h-8 rounded-full ${color.bgClass} hover:scale-110 transition-transform border-2 border-white shadow-sm`}
+                    title={color.name}
+                  />
+                ))}
+              </div>
+            </div>
             
             <div className="border-t border-gray-100 my-1"></div>
             
