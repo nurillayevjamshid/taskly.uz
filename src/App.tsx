@@ -7,6 +7,7 @@ import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea
 import Cropper from 'react-easy-crop';
 import ProfileDropdown from './ProfileDropdown';
 import NotificationDropdown from './NotificationDropdown';
+import ColumnOptionsModal from './ColumnOptionsModal';
 import { 
   LayoutDashboard, 
   KanbanSquare, 
@@ -459,6 +460,43 @@ export default function App() {
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Column options handlers
+  const openColumnOptions = (columnId: string, columnTitle: string) => {
+    setColumnOptionsModal({
+      isOpen: true,
+      columnId,
+      columnTitle
+    });
+  };
+
+  const closeColumnOptions = () => {
+    setColumnOptionsModal({
+      isOpen: false,
+      columnId: '',
+      columnTitle: ''
+    });
+  };
+
+  const handleEditColumn = () => {
+    // TODO: Implement column editing functionality
+    console.log('Edit column:', columnOptionsModal.columnId);
+  };
+
+  const handleDeleteColumn = () => {
+    // TODO: Implement column deletion functionality
+    console.log('Delete column:', columnOptionsModal.columnId);
+  };
+
+  const handleArchiveColumn = () => {
+    // TODO: Implement column archiving functionality
+    console.log('Archive column:', columnOptionsModal.columnId);
+  };
+
+  const handleDuplicateColumn = () => {
+    // TODO: Implement column duplication functionality
+    console.log('Duplicate column:', columnOptionsModal.columnId);
+  };
+
   const mockUsers = ['Jane Smith', 'Mike Johnson', 'John Doe', 'You'];
   
   // Comment management state
@@ -472,6 +510,17 @@ export default function App() {
   
   // Notification dropdown state
   const [isNotificationDropdownOpen, setIsNotificationDropdownOpen] = useState(false);
+  
+  // Column options modal state
+  const [columnOptionsModal, setColumnOptionsModal] = useState<{
+    isOpen: boolean;
+    columnId: string;
+    columnTitle: string;
+  }>({
+    isOpen: false,
+    columnId: '',
+    columnTitle: ''
+  });
   
   // Tag management state
   const [isAddingTag, setIsAddingTag] = useState(false);
@@ -1047,7 +1096,10 @@ export default function App() {
                             {col.tasks.length}
                           </span>
                         </div>
-                        <button className="text-gray-400 hover:text-gray-600 p-1 rounded hover:bg-gray-200 transition-colors">
+                        <button 
+                          onClick={() => openColumnOptions(col.id, t(col.id as keyof typeof translations['uz']) || col.title)}
+                          className="text-gray-400 hover:text-gray-600 p-1 rounded hover:bg-gray-200 transition-colors"
+                        >
                           <MoreHorizontal className="w-4 h-4" />
                         </button>
                       </div>
@@ -1959,6 +2011,18 @@ export default function App() {
       <NotificationDropdown
         isOpen={isNotificationDropdownOpen}
         onClose={() => setIsNotificationDropdownOpen(false)}
+      />
+      
+      {/* Column Options Modal */}
+      <ColumnOptionsModal
+        isOpen={columnOptionsModal.isOpen}
+        onClose={closeColumnOptions}
+        columnId={columnOptionsModal.columnId}
+        columnTitle={columnOptionsModal.columnTitle}
+        onEditColumn={handleEditColumn}
+        onDeleteColumn={handleDeleteColumn}
+        onArchiveColumn={handleArchiveColumn}
+        onDuplicateColumn={handleDuplicateColumn}
       />
     </div>
   );
