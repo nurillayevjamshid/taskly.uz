@@ -9,7 +9,8 @@ import {
   ExternalLink, 
   ChevronRight,
   Plus,
-  Keyboard
+  Keyboard,
+  Bell
 } from 'lucide-react';
 
 interface ProfileDropdownProps {
@@ -78,6 +79,16 @@ export default function ProfileDropdown({ isOpen, onClose, userAvatar, userName,
         <div className="p-2">
           <h4 className="px-3 py-1 text-xs font-semibold text-gray-400 uppercase tracking-wider">Taskly</h4>
           <div className="space-y-1 mt-1">
+            <button className="md:hidden w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors flex items-center justify-between">
+              <span className="flex items-center">
+                <Bell className="w-4 h-4 mr-2" />
+                Bildirishnomalar
+              </span>
+              <span className="flex items-center">
+                <span className="h-2 w-2 rounded-full bg-red-500 mr-2"></span>
+                <span className="text-xs text-gray-500">3</span>
+              </span>
+            </button>
             <button className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors flex items-center">
               <User className="w-4 h-4 mr-2" />
               Profil va ko'rinish
