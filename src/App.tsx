@@ -1214,6 +1214,23 @@ export default function App() {
               <Menu className="w-5 h-5" />
             </button>
             
+            {/* Mobile: Notification Bell */}
+            <button 
+              onClick={() => setIsNotificationDropdownOpen(!isNotificationDropdownOpen)}
+              className="md:hidden p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full relative transition-colors"
+            >
+              <Bell className="w-5 h-5" />
+              <span className="absolute top-1.5 right-1.5 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span>
+            </button>
+            
+            {/* Mobile: Profile Icon */}
+            <div 
+              onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+              className="md:hidden h-8 w-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 text-white flex items-center justify-center font-semibold text-sm shadow-sm cursor-pointer border border-white ring-2 ring-transparent hover:ring-gray-200 transition-all overflow-hidden"
+            >
+              {userAvatar ? <img src={userAvatar} alt="User Avatar" className="w-full h-full object-cover" /> : 'JD'}
+            </div>
+            
             {/* Desktop: Notification Bell */}
             <button 
               onClick={() => setIsNotificationDropdownOpen(!isNotificationDropdownOpen)}
