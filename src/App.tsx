@@ -438,6 +438,178 @@ const initialData: ColumnData[] = [
   }
 ];
 
+// Feedback Modal Component
+function FeedbackModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  const modalRef = useRef<HTMLDivElement>(null);
+  const [feedbackType, setFeedbackType] = useState<'suggestion' | 'complaint' | 'request'>('suggestion');
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [email, setEmail] = useState('');
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen, onClose]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Here you would normally send the data to your backend
+    console.log('Feedback submitted:', { feedbackType, title, description, email });
+    
+    // Reset form and close modal
+    setTitle('');
+    setDescription('');
+    setEmail('');
+    setFeedbackType('suggestion');
+    onClose();
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity">
+      <div 
+        ref={modalRef}
+        className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden transform transition-all"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-gray-900">
+            Takliflar va shikoyatlar
+          </h3>
+          <button 
+            onClick={onClose}
+            className="p-1 hover:bg-gray-100 rounded-md transition-colors"
+          >
+            <X className="w-4 h-4 text-gray-500" />
+          </button>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+          {/* Feedback Type */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Xabar turi
+            </label>
+            <div className="grid grid-cols-3 gap-3">
+              <button
+                type="button"
+                onClick={() => setFeedbackType('suggestion')}
+                className={`px-4 py-2 text-sm font-medium rounded-lg border transition-colors ${
+                  feedbackType === 'suggestion' 
+                    ? 'bg-blue-50 border-blue-200 text-blue-700' 
+                    : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                Taklif
+              </button>
+              <button
+                type="button"
+                onClick={() => setFeedbackType('request')}
+                className={`px-4 py-2 text-sm font-medium rounded-lg border transition-colors ${
+                  feedbackType === 'request' 
+                    ? 'bg-blue-50 border-blue-200 text-blue-700' 
+                    : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                Talab
+              </button>
+              <button
+                type="button"
+                onClick={() => setFeedbackType('complaint')}
+                className={`px-4 py-2 text-sm font-medium rounded-lg border transition-colors ${
+                  feedbackType === 'complaint' 
+                    ? 'bg-red-50 border-red-200 text-red-700' 
+                    : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                Shikoyat
+              </button>
+            </div>
+          </div>
+
+          {/* Title */}
+          <div>
+            <label htmlFor="feedbackTitle" className="block text-sm font-medium text-gray-700 mb-1.5">
+              Sarlavha
+            </label>
+            <input
+              id="feedbackTitle"
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Qisqacha mazmunni kiriting..."
+              className="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-gray-900 shadow-sm transition-colors hover:border-gray-400 outline-none"
+              required
+            />
+          </div>
+
+          {/* Description */}
+          <div>
+            <label htmlFor="feedbackDescription" className="block text-sm font-medium text-gray-700 mb-1.5">
+              Batafsil ma'lumot
+            </label>
+            <textarea
+              id="feedbackDescription"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="To'liq ma'lumotlarni kiriting..."
+              rows={5}
+              className="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-gray-900 shadow-sm transition-colors hover:border-gray-400 outline-none resize-none"
+              required
+            />
+          </div>
+
+          {/* Email */}
+          <div>
+            <label htmlFor="feedbackEmail" className="block text-sm font-medium text-gray-700 mb-1.5">
+              Elektron pochta (ixtiyoriy)
+            </label>
+            <input
+              id="feedbackEmail"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="sizning@email.com"
+              className="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-gray-900 shadow-sm transition-colors hover:border-gray-400 outline-none"
+            />
+          </div>
+
+          {/* Actions */}
+          <div className="flex justify-end space-x-3 pt-4 border-t border-gray-100">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+            >
+              Bekor qilish
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+            >
+              Yuborish
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 // User Dropdown Component
 function UserDropdown({ isOpen, onClose, position }: { isOpen: boolean; onClose: () => void; position: { x: number; y: number } | null }) {
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -633,6 +805,9 @@ export default function App() {
   // User dropdown state
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [userDropdownPosition, setUserDropdownPosition] = useState<{ x: number; y: number } | null>(null);
+
+  // Feedback modal state
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   
   // Tag management state
   const [isAddingTag, setIsAddingTag] = useState(false);
@@ -1167,6 +1342,23 @@ export default function App() {
                       <span className={`${isDarkMode ? 'translate-x-5' : 'translate-x-0'} pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out`}></span>
                     </button>
                   </div>
+                </div>
+              </div>
+
+              {/* Feedback Card */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+                <div className="px-6 py-5 border-b border-gray-200">
+                  <h3 className="text-lg font-semibold text-gray-900">Qo'llab-quvvatlar</h3>
+                  <p className="text-sm text-gray-500">Loyihani yaxshilash uchun takliflaringizni yuboring</p>
+                </div>
+                <div className="p-6">
+                  <button 
+                    onClick={() => setIsFeedbackModalOpen(true)}
+                    className="w-full flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                  >
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    Takliflar qoldirish
+                  </button>
                 </div>
               </div>
             </div>
@@ -2163,6 +2355,12 @@ export default function App() {
         isOpen={isUserDropdownOpen}
         onClose={() => setIsUserDropdownOpen(false)}
         position={userDropdownPosition}
+      />
+      
+      {/* Feedback Modal */}
+      <FeedbackModal
+        isOpen={isFeedbackModalOpen}
+        onClose={() => setIsFeedbackModalOpen(false)}
       />
     </div>
   );
