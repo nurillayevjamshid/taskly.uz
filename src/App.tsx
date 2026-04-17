@@ -8,7 +8,8 @@ import Cropper from 'react-easy-crop';
 import ProfileDropdown from './ProfileDropdown';
 import NotificationDropdown from './NotificationDropdown';
 import ColumnOptionsModal from './ColumnOptionsModal';
-import { useColumns, useTasks, useProjects, useAuth } from './hooks/useApi';
+import { useFirestoreColumns, useFirestoreTasks, useFirestoreProjects } from './hooks/useFirestore';
+import { useFirebaseAuth } from './hooks/useFirebaseAuth';
 import {
   LayoutDashboard,
   KanbanSquare,
@@ -612,8 +613,8 @@ function UserDropdown({ isOpen, onClose, position }: { isOpen: boolean; onClose:
 }
 
 export default function App() {
-  const { columns, setColumns, loading: columnsLoading, createColumn, updateColumn, deleteColumn } = useColumns();
-  const { createTask, updateTask, deleteTask } = useTasks();
+  const { columns, setColumns, loading: columnsLoading, createColumn, updateColumn, deleteColumn } = useFirestoreColumns();
+  const { createTask, updateTask, deleteTask } = useFirestoreTasks();
   
   // Debug: log columns state
   useEffect(() => {
@@ -635,8 +636,8 @@ export default function App() {
       setColumns(defaultColumns);
     }
   }, [columnsLoading, columns.length, setColumns]);
-  const { projects, createProject, deleteProject } = useProjects();
-  const { user } = useAuth();
+  const { projects, createProject, deleteProject } = useFirestoreProjects();
+  const { user } = useFirebaseAuth();
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
   const [draggingColId, setDraggingColId] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
