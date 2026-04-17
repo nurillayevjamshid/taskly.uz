@@ -106,8 +106,10 @@ export const useIntegratedColumns = () => {
     return () => columnsUnsubscribe();
   }, []);
 
-  // Tasks listener - alohida
+  // Tasks listener - columns yuklangandan keyin ishlashi kerak
   useEffect(() => {
+    if (columns.length === 0) return; // Columns bo'sh bo'lsa ishlamaydi
+    
     const tasksQuery = query(collection(db, 'tasks'), orderBy('createdAt'));
     const tasksUnsubscribe = onSnapshot(
       tasksQuery,
@@ -132,7 +134,7 @@ export const useIntegratedColumns = () => {
     );
 
     return () => tasksUnsubscribe();
-  }, []);
+  }, [columns.length]); // Columns uzunligiga qarab ishlaydi
 
   const createColumn = async (title: string, color?: string, order?: number) => {
     try {

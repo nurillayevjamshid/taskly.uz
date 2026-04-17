@@ -628,16 +628,31 @@ export default function App() {
   useEffect(() => {
     if (!columnsLoading && columns.length === 0) {
       console.log('Creating default columns in App...');
-      const defaultColumns: ColumnData[] = [
-        { id: 'todo', title: 'Vazifalar', tasks: [], color: '#3b82f6', order: 0, isStandard: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-        { id: 'in-progress', title: 'Jarayonda', tasks: [], color: '#f59e0b', order: 1, isStandard: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-        { id: 'review', title: "Ko'rib chiqilmoqda", tasks: [], color: '#8b5cf6', order: 2, isStandard: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-        { id: 'done', title: 'Bajarildi', tasks: [], color: '#10b981', order: 3, isStandard: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-        { id: 'failed', title: 'Bajarilmadi', tasks: [], color: '#ef4444', order: 4, isStandard: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
-      ];
-      setColumns(defaultColumns);
+      createDefaultColumnsIfNeeded(); // Firestore dan standart columnlarni yaratish
     }
-  }, [columnsLoading, columns.length, setColumns]);
+  }, [columnsLoading, columns.length, setColumns, createDefaultColumnsIfNeeded]);
+
+  // Qayta yuklash funksiyasi - Ctrl+F5 dan keyin ma'lumotlarni qayta yuklash
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        console.log('Sahifa korinadi - malumotlar qayta yuklanmoqda...');
+        // Firestore listenerlar avtomatik ravishda qayta ulanadi
+      }
+    };
+
+    const handleBeforeUnload = () => {
+      console.log('Sahifa yopilmoqda...');
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
   const { projects, createProject, deleteProject } = useFirestoreProjects();
   const { user } = useFirebaseAuth();
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
