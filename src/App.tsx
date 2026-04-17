@@ -831,48 +831,62 @@ export default function App() {
     }
   };
 
-  const handleAddCardSubmit = (e: React.FormEvent, colId: string) => {
+  const handleAddCardSubmit = async (e: React.FormEvent, colId: string) => {
     e.preventDefault();
     if (!newCardText.trim()) return;
 
-    const newTask: Task = {
-      id: `t${Date.now()}`,
-      title: newCardText.trim(),
-      description: newCardDescription.trim() || null,
-      tags: [],
-      startDate: newCardStartDate || null,
-      dueDate: newCardDate || null,
-      assignee: newCardAssignee || null,
-      comments: [],
-      attachments: newCardAttachments,
-      columnId: colId,
-      order: 0,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+    try {
+      const taskData = {
+        title: newCardText.trim(),
+        description: newCardDescription.trim() || undefined,
+        startDate: newCardStartDate || undefined,
+        dueDate: newCardDate || undefined,
+        assignee: newCardAssignee || undefined,
+        attachments: newCardAttachments,
+        columnId: colId,
+        order: 0
+      };
 
-    setColumns(prev => prev.map(col => {
-      if (col.id === colId) {
-        return { ...col, tasks: [...col.tasks, newTask] };
-      }
-      return col;
-    }));
-
-    setNewCardText('');
-    setNewCardDescription('');
-    setNewCardStartDate('');
-    setNewCardDate('');
-    setNewCardAssignee('');
-    setNewCardAttachments(0);
-    setAddingCardToCol(null);
+      await createTask(taskData);
+      
+      // Formni tozalash
+      setNewCardText('');
+      setNewCardDescription('');
+      setNewCardStartDate('');
+      setNewCardDate('');
+      setNewCardAssignee('');
+      setNewCardAttachments(0);
+      setAddingCardToCol(null);
+      
+      console.log('Vazifa muvaffaqiyatli qo\'shildi:', colId);
+    } catch (error) {
+      console.error('Vazifa qo\'shishda xatolik:', error);
+      alert('Vazifa qo\'shishda xatolik yuz berdi');
+    }
   };
 
-  const handleUpdateTask = (updatedTask: Task) => {
-    setSelectedTask(updatedTask);
-    setColumns(prev => prev.map(col => ({
-      ...col,
-      tasks: col.tasks.map(t => t.id === updatedTask.id ? updatedTask : t)
-    })));
+  const handleUpdateTask = async (updatedTask: Task) => {
+    try {
+      setSelectedTask(updatedTask);
+      
+      await updateTask(updatedTask.id, {
+        title: updatedTask.title,
+        description: updatedTask.description || undefined,
+        startDate: updatedTask.startDate || undefined,
+        dueDate: updatedTask.dueDate || undefined,
+        assignee: updatedTask.assignee || undefined,
+        attachments: updatedTask.attachments,
+        columnId: updatedTask.columnId,
+        order: updatedTask.order,
+        tags: updatedTask.tags,
+        comments: updatedTask.comments
+      });
+      
+      console.log('Vazifa muvaffaqiyatli yangilandi:', updatedTask.title);
+    } catch (error) {
+      console.error('Vazifani yangilashda xatolik:', error);
+      alert('Vazifani yangilashda xatolik yuz berdi');
+    }
   };
 
   const handleAddTag = (e: React.FormEvent) => {
@@ -910,31 +924,24 @@ export default function App() {
     setNewCommentText('');
   };
 
-  const handleToggleTaskCompletion = (e: React.MouseEvent, taskId: string, sourceColId: string) => {
+  const handleToggleTaskCompletion = async (e: React.MouseEvent, taskId: string, sourceColId: string) => {
     e.stopPropagation();
     
     // If it's done or failed, move to todo. If it's anything else, move to done.
     const targetColId = (sourceColId === 'done' || sourceColId === 'failed') ? 'todo' : 'done';
     if (sourceColId === targetColId) return;
 
-    setColumns(prev => {
-      const sourceCol = prev.find(c => c.id === sourceColId);
-      const targetCol = prev.find(c => c.id === targetColId);
-      if (!sourceCol || !targetCol) return prev;
-
-      const taskToMove = sourceCol.tasks.find(t => t.id === taskId);
-      if (!taskToMove) return prev;
-
-      return prev.map(col => {
-        if (col.id === sourceColId) {
-          return { ...col, tasks: col.tasks.filter(t => t.id !== taskId) };
-        }
-        if (col.id === targetColId) {
-          return { ...col, tasks: [taskToMove, ...col.tasks] };
-        }
-        return col;
+    try {
+      await updateTask(taskId, {
+        columnId: targetColId,
+        order: 0 // Boshida qo'yish
       });
-    });
+      
+      console.log(`Vazifa ${sourceColId} dan ${targetColId} ga o'tkazildi`);
+    } catch (error) {
+      console.error('Vazifa completion ni yangilashda xatolik:', error);
+      alert('Vazifa holatini o\'zgartirishda xatolik yuz berdi');
+    }
   };
 
   // Automation: Move tasks to 'in-progress' if start date has arrived
@@ -985,40 +992,46 @@ export default function App() {
   const allTasks = columns.flatMap(col => col.tasks.map(task => ({ ...task, statusId: col.id as keyof typeof translations['uz'] })));
 
   // Drag and Drop Handlers
-  const onDragEnd = (result: DropResult) => {
+  const onDragEnd = async (result: DropResult) => {
     const { source, destination } = result;
 
-    // Dropped outside the list
+    // Dropped outside list
     if (!destination) {
       return;
     }
 
-    // Dropped in the same position
+    // Dropped in same position
     if (source.droppableId === destination.droppableId && source.index === destination.index) {
       return;
     }
 
-    setColumns(prev => {
-      const newCols = [...prev];
-      const sourceColIndex = newCols.findIndex(c => c.id === source.droppableId);
-      const destColIndex = newCols.findIndex(c => c.id === destination.droppableId);
+    try {
+      // Vazifani topish
+      const sourceCol = columns.find(c => c.id === source.droppableId);
+      if (!sourceCol) return;
       
-      const sourceCol = newCols[sourceColIndex];
-      const destCol = newCols[destColIndex];
-      
-      const sourceTasks = [...sourceCol.tasks];
-      const destTasks = source.droppableId === destination.droppableId ? sourceTasks : [...destCol.tasks];
-      
-      const [removed] = sourceTasks.splice(source.index, 1);
-      destTasks.splice(destination.index, 0, removed);
-      
-      newCols[sourceColIndex] = { ...sourceCol, tasks: sourceTasks };
+      const task = sourceCol.tasks[source.index];
+      if (!task) return;
+
+      // Agar column o'zgargan bo'lsa, statusini yangilash
       if (source.droppableId !== destination.droppableId) {
-        newCols[destColIndex] = { ...destCol, tasks: destTasks };
+        await updateTask(task.id, {
+          columnId: destination.droppableId,
+          order: destination.index
+        });
+        
+        console.log(`Vazifa "${task.title}" ${source.droppableId} dan ${destination.droppableId} ga o'tkazildi`);
+      } else {
+        // Column ichida tartibni o'zgartirish
+        await updateTask(task.id, {
+          columnId: destination.droppableId,
+          order: destination.index
+        });
       }
-      
-      return newCols;
-    });
+    } catch (error) {
+      console.error('Vazifa o\'tkazishda xatolik:', error);
+      alert('Vazifa o\'tkazishda xatolik yuz berdi');
+    }
   };
 
   const getColumnColor = (column: ColumnData) => {
