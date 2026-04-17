@@ -8,9 +8,42 @@ const app = express();
 const prisma = new PrismaClient();
 const PORT = process.env.PORT || 3001;
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+// Require a strong JWT secret. Never fall back to a hardcoded default,
+// which would let anyone forge tokens.
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET || JWT_SECRET.length < 32) {
+  throw new Error(
+    'JWT_SECRET env var must be set to a random value of at least 32 characters'
+  );
+}
+
+// Lock CORS down to an explicit allow-list. Use CORS_ORIGINS as a
+// comma-separated list (e.g. "https://taskly.uz,https://app.taskly.uz").
+const allowedOrigins = (process.env.CORS_ORIGINS || '')
+  .split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow same-origin / curl / server-to-server requests (no Origin header).
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error(`Origin ${origin} not allowed by CORS`));
+    },
+    credentials: true,
+  })
+);
+app.use(express.json({ limit: '1mb' }));
+
+// Simple validation helpers to guard against unvalidated user input.
+const isNonEmptyString = (v: unknown, max = 1000): v is string =>
+  typeof v === 'string' && v.trim().length > 0 && v.length <= max;
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const isValidEmail = (v: unknown): v is string =>
+  typeof v === 'string' && v.length <= 254 && EMAIL_RE.test(v);
 
 // Auth middleware
 const authenticateToken = (req: any, res: any, next: any) => {
@@ -21,7 +54,7 @@ const authenticateToken = (req: any, res: any, next: any) => {
     return res.status(401).json({ error: 'Token kerak' });
   }
 
-  jwt.verify(token, process.env.JWT_SECRET || 'default-secret', (err: any, user: any) => {
+  jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
     if (err) {
       return res.status(403).json({ error: 'Noto\'g\'ri token' });
     }
@@ -36,7 +69,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // Projects CRUD
-app.get('/api/projects', async (req, res) => {
+app.get('/api/projects', authenticateToken, async (req, res) => {
   try {
     const projects = await prisma.project.findMany({
       orderBy: { createdAt: 'desc' }
@@ -47,14 +80,19 @@ app.get('/api/projects', async (req, res) => {
   }
 });
 
-app.post('/api/projects', async (req, res) => {
+app.post('/api/projects', authenticateToken, async (req: any, res) => {
   try {
-    const { name, userId } = req.body;
+    const { name } = req.body;
+    if (!isNonEmptyString(name, 200)) {
+      return res.status(400).json({ error: 'Loyiha nomi kerak' });
+    }
     const project = await prisma.project.create({
-      data: { 
-        name, 
-        userId: userId || null 
-      }
+      data: {
+        name,
+        // Always scope new projects to the authenticated user; ignore
+        // any client-supplied userId to prevent impersonation.
+        userId: req.user?.userId ?? null,
+      },
     });
     res.json(project);
   } catch (error) {
@@ -62,7 +100,7 @@ app.post('/api/projects', async (req, res) => {
   }
 });
 
-app.delete('/api/projects/:id', async (req, res) => {
+app.delete('/api/projects/:id', authenticateToken, async (req, res) => {
   try {
     await prisma.project.delete({
       where: { id: req.params.id }
@@ -74,7 +112,7 @@ app.delete('/api/projects/:id', async (req, res) => {
 });
 
 // TaskColumnName CRUD - 5 ta ustun nomini saqlash
-app.get('/api/projects/:projectId/column-names', async (req, res) => {
+app.get('/api/projects/:projectId/column-names', authenticateToken, async (req, res) => {
   try {
     const columnNames = await prisma.taskColumnName.findUnique({
       where: { projectId: req.params.projectId }
@@ -95,7 +133,7 @@ app.get('/api/projects/:projectId/column-names', async (req, res) => {
   }
 });
 
-app.post('/api/projects/:projectId/column-names', async (req, res) => {
+app.post('/api/projects/:projectId/column-names', authenticateToken, async (req, res) => {
   try {
     const { name1, name2, name3, name4, name5 } = req.body;
     const columnNames = await prisma.taskColumnName.create({
@@ -114,7 +152,7 @@ app.post('/api/projects/:projectId/column-names', async (req, res) => {
   }
 });
 
-app.put('/api/projects/:projectId/column-names', async (req, res) => {
+app.put('/api/projects/:projectId/column-names', authenticateToken, async (req, res) => {
   try {
     const { name1, name2, name3, name4, name5 } = req.body;
     const columnNames = await prisma.taskColumnName.upsert({
@@ -146,8 +184,14 @@ app.post('/api/auth/register', async (req, res) => {
   try {
     const { email, password, name } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Email va password kerak' });
+    if (!isValidEmail(email)) {
+      return res.status(400).json({ error: 'Email noto\'g\'ri' });
+    }
+    if (typeof password !== 'string' || password.length < 8 || password.length > 128) {
+      return res.status(400).json({ error: 'Password kamida 8 ta belgi bo\'lishi kerak' });
+    }
+    if (name !== undefined && name !== null && !isNonEmptyString(name, 100)) {
+      return res.status(400).json({ error: 'Ism noto\'g\'ri' });
     }
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
@@ -167,7 +211,7 @@ app.post('/api/auth/register', async (req, res) => {
 
     const token = jwt.sign(
       { userId: user.id, email: user.email },
-      process.env.JWT_SECRET || 'default-secret',
+      JWT_SECRET,
       { expiresIn: '7d' }
     );
 
@@ -190,8 +234,8 @@ app.post('/api/auth/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Email va password kerak' });
+    if (!isValidEmail(email) || typeof password !== 'string' || password.length === 0 || password.length > 128) {
+      return res.status(401).json({ error: 'Email yoki password noto\'g\'ri' });
     }
 
     const user = await prisma.user.findUnique({ where: { email } });
@@ -206,7 +250,7 @@ app.post('/api/auth/login', async (req, res) => {
 
     const token = jwt.sign(
       { userId: user.id, email: user.email },
-      process.env.JWT_SECRET || 'default-secret',
+      JWT_SECRET,
       { expiresIn: '7d' }
     );
 
@@ -226,7 +270,7 @@ app.post('/api/auth/login', async (req, res) => {
 });
 
 // Columns CRUD
-app.get('/api/columns', async (req, res) => {
+app.get('/api/columns', authenticateToken, async (req, res) => {
   try {
     const columns = await prisma.column.findMany({
       include: { tasks: { include: { tags: true, comments: true } } },
@@ -238,7 +282,7 @@ app.get('/api/columns', async (req, res) => {
   }
 });
 
-app.post('/api/columns', async (req, res) => {
+app.post('/api/columns', authenticateToken, async (req, res) => {
   try {
     const { title, color, order, isStandard } = req.body;
     const column = await prisma.column.create({
@@ -250,7 +294,7 @@ app.post('/api/columns', async (req, res) => {
   }
 });
 
-app.put('/api/columns/:id', async (req, res) => {
+app.put('/api/columns/:id', authenticateToken, async (req, res) => {
   try {
     const { title, color, order } = req.body;
     const column = await prisma.column.update({
@@ -263,7 +307,7 @@ app.put('/api/columns/:id', async (req, res) => {
   }
 });
 
-app.delete('/api/columns/:id', async (req, res) => {
+app.delete('/api/columns/:id', authenticateToken, async (req, res) => {
   try {
     const column = await prisma.column.findUnique({
       where: { id: req.params.id }
@@ -283,7 +327,7 @@ app.delete('/api/columns/:id', async (req, res) => {
 });
 
 // Tasks CRUD
-app.get('/api/tasks', async (req, res) => {
+app.get('/api/tasks', authenticateToken, async (req, res) => {
   try {
     const tasks = await prisma.task.findMany({
       include: { tags: true, comments: true }
@@ -294,7 +338,7 @@ app.get('/api/tasks', async (req, res) => {
   }
 });
 
-app.get('/api/tasks/:id', async (req, res) => {
+app.get('/api/tasks/:id', authenticateToken, async (req, res) => {
   try {
     const task = await prisma.task.findUnique({
       where: { id: req.params.id },
@@ -306,7 +350,7 @@ app.get('/api/tasks/:id', async (req, res) => {
   }
 });
 
-app.post('/api/tasks', async (req, res) => {
+app.post('/api/tasks', authenticateToken, async (req, res) => {
   try {
     const { title, description, startDate, dueDate, assignee, attachments, columnId, order } = req.body;
     const task = await prisma.task.create({
@@ -327,7 +371,7 @@ app.post('/api/tasks', async (req, res) => {
   }
 });
 
-app.put('/api/tasks/:id', async (req, res) => {
+app.put('/api/tasks/:id', authenticateToken, async (req, res) => {
   try {
     const { title, description, startDate, dueDate, assignee, attachments, columnId, order } = req.body;
     const task = await prisma.task.update({
@@ -349,7 +393,7 @@ app.put('/api/tasks/:id', async (req, res) => {
   }
 });
 
-app.delete('/api/tasks/:id', async (req, res) => {
+app.delete('/api/tasks/:id', authenticateToken, async (req, res) => {
   try {
     await prisma.task.delete({
       where: { id: req.params.id }
@@ -361,7 +405,7 @@ app.delete('/api/tasks/:id', async (req, res) => {
 });
 
 // Tags CRUD
-app.post('/api/tasks/:taskId/tags', async (req, res) => {
+app.post('/api/tasks/:taskId/tags', authenticateToken, async (req, res) => {
   try {
     const { text, color } = req.body;
     const tag = await prisma.tag.create({
@@ -377,7 +421,7 @@ app.post('/api/tasks/:taskId/tags', async (req, res) => {
   }
 });
 
-app.delete('/api/tags/:id', async (req, res) => {
+app.delete('/api/tags/:id', authenticateToken, async (req, res) => {
   try {
     await prisma.tag.delete({
       where: { id: req.params.id }
@@ -389,7 +433,7 @@ app.delete('/api/tags/:id', async (req, res) => {
 });
 
 // Comments CRUD
-app.post('/api/tasks/:taskId/comments', async (req, res) => {
+app.post('/api/tasks/:taskId/comments', authenticateToken, async (req, res) => {
   try {
     const { text, author } = req.body;
     const comment = await prisma.comment.create({
@@ -405,7 +449,7 @@ app.post('/api/tasks/:taskId/comments', async (req, res) => {
   }
 });
 
-app.delete('/api/comments/:id', async (req, res) => {
+app.delete('/api/comments/:id', authenticateToken, async (req, res) => {
   try {
     await prisma.comment.delete({
       where: { id: req.params.id }

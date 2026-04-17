@@ -2,13 +2,26 @@ import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
+// Firebase config is sourced entirely from environment variables.
+// Do NOT hardcode credentials in source - they get committed to git history
+// and pin the deployment to a single Firebase project for every fork.
+const requireEnv = (key: string): string => {
+  const value = import.meta.env[key as keyof ImportMetaEnv] as string | undefined;
+  if (!value) {
+    throw new Error(
+      `Missing required env var ${key}. Copy .env.example to .env.local and fill in your Firebase config.`
+    );
+  }
+  return value;
+};
+
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyClx1nTp_t-LGeJpsgj2bEWGvL-oIbGb5E",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "taskly-de0b5.firebaseapp.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "taskly-de0b5",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "taskly-de0b5.firebasestorage.app",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "816744541754",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:816744541754:web:298152bd4a2630f3618f03"
+  apiKey: requireEnv('VITE_FIREBASE_API_KEY'),
+  authDomain: requireEnv('VITE_FIREBASE_AUTH_DOMAIN'),
+  projectId: requireEnv('VITE_FIREBASE_PROJECT_ID'),
+  storageBucket: requireEnv('VITE_FIREBASE_STORAGE_BUCKET'),
+  messagingSenderId: requireEnv('VITE_FIREBASE_MESSAGING_SENDER_ID'),
+  appId: requireEnv('VITE_FIREBASE_APP_ID'),
 };
 
 const app = initializeApp(firebaseConfig);
