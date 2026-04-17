@@ -73,6 +73,74 @@ app.delete('/api/projects/:id', async (req, res) => {
   }
 });
 
+// TaskColumnName CRUD - 5 ta ustun nomini saqlash
+app.get('/api/projects/:projectId/column-names', async (req, res) => {
+  try {
+    const columnNames = await prisma.taskColumnName.findUnique({
+      where: { projectId: req.params.projectId }
+    });
+    if (!columnNames) {
+      // Return default names if not found
+      return res.json({
+        name1: 'Vazifalar',
+        name2: 'Jarayonda',
+        name3: "Ko'rib chiqilmoqda",
+        name4: 'Bajarildi',
+        name5: 'Bajarilmadi'
+      });
+    }
+    res.json(columnNames);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch column names' });
+  }
+});
+
+app.post('/api/projects/:projectId/column-names', async (req, res) => {
+  try {
+    const { name1, name2, name3, name4, name5 } = req.body;
+    const columnNames = await prisma.taskColumnName.create({
+      data: {
+        projectId: req.params.projectId,
+        name1: name1 || 'Vazifalar',
+        name2: name2 || 'Jarayonda',
+        name3: name3 || "Ko'rib chiqilmoqda",
+        name4: name4 || 'Bajarildi',
+        name5: name5 || 'Bajarilmadi'
+      }
+    });
+    res.json(columnNames);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to create column names' });
+  }
+});
+
+app.put('/api/projects/:projectId/column-names', async (req, res) => {
+  try {
+    const { name1, name2, name3, name4, name5 } = req.body;
+    const columnNames = await prisma.taskColumnName.upsert({
+      where: { projectId: req.params.projectId },
+      update: {
+        ...(name1 && { name1 }),
+        ...(name2 && { name2 }),
+        ...(name3 && { name3 }),
+        ...(name4 && { name4 }),
+        ...(name5 && { name5 })
+      },
+      create: {
+        projectId: req.params.projectId,
+        name1: name1 || 'Vazifalar',
+        name2: name2 || 'Jarayonda',
+        name3: name3 || "Ko'rib chiqilmoqda",
+        name4: name4 || 'Bajarildi',
+        name5: name5 || 'Bajarilmadi'
+      }
+    });
+    res.json(columnNames);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update column names' });
+  }
+});
+
 // Auth endpoints
 app.post('/api/auth/register', async (req, res) => {
   try {

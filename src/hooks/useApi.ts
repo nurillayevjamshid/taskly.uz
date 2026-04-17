@@ -374,3 +374,71 @@ export const useComments = () => {
 
   return { createComment, deleteComment };
 };
+
+type ColumnNames = {
+  name1: string;
+  name2: string;
+  name3: string;
+  name4: string;
+  name5: string;
+};
+
+export const useColumnNames = (projectId?: string) => {
+  const [columnNames, setColumnNames] = useState<ColumnNames>({
+    name1: 'Vazifalar',
+    name2: 'Jarayonda',
+    name3: "Ko'rib chiqilmoqda",
+    name4: 'Bajarildi',
+    name5: 'Bajarilmadi'
+  });
+  const [loading, setLoading] = useState(true);
+
+  const fetchColumnNames = async () => {
+    if (!projectId) return;
+    try {
+      setLoading(true);
+      const response = await fetch(`${API_BASE}/projects/${projectId}/column-names`);
+      const data = await response.json();
+      setColumnNames({
+        name1: data.name1 || 'Vazifalar',
+        name2: data.name2 || 'Jarayonda',
+        name3: data.name3 || "Ko'rib chiqilmoqda",
+        name4: data.name4 || 'Bajarildi',
+        name5: data.name5 || 'Bajarilmadi'
+      });
+    } catch (err) {
+      console.error('Failed to fetch column names');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateColumnNames = async (names: Partial<ColumnNames>) => {
+    if (!projectId) return;
+    try {
+      const response = await fetch(`${API_BASE}/projects/${projectId}/column-names`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(names)
+      });
+      const data = await response.json();
+      setColumnNames({
+        name1: data.name1 || columnNames.name1,
+        name2: data.name2 || columnNames.name2,
+        name3: data.name3 || columnNames.name3,
+        name4: data.name4 || columnNames.name4,
+        name5: data.name5 || columnNames.name5
+      });
+      return data;
+    } catch (err) {
+      console.error('Failed to update column names');
+      throw err;
+    }
+  };
+
+  useEffect(() => {
+    fetchColumnNames();
+  }, [projectId]);
+
+  return { columnNames, loading, updateColumnNames, refetch: fetchColumnNames };
+};
