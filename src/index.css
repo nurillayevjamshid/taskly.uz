@@ -535,10 +535,15 @@
   border-color: #334155 !important;
 }
 
-.dark .border-zinc-100 {
+.dark .border-zinc-300 {
   border-color: #475569 !important;
 }
 
-.dark .border-zinc-300 {
-  border-color: #475569 !important;
+/* Fix UserDropdown mobile positioning */
+@media (max-width: 640px) {
+  .user-dropdown-wrapper {
+    left: 1rem !important;
+    right: 1rem !important;
+    transform: none !important;
+  }
 }

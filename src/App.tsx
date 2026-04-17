@@ -644,11 +644,11 @@ function UserDropdown({ isOpen, onClose, position }: { isOpen: boolean; onClose:
 
   return (
     <div 
-      className="fixed z-50 left-4 right-4 sm:left-auto sm:right-auto"
+      className="fixed z-50 left-4 right-4 sm:left-auto sm:right-auto mx-auto sm:mx-0 user-dropdown-wrapper"
       style={{ 
-        left: position ? `${position.x}px` : 'auto',
+        left: `${position.x}px`, 
         top: `${position.y}px`,
-        transform: 'translate(-50%, 0)'
+        transform: 'translateX(-50%)'
       }}
     >
       <div 
