@@ -1,10 +1,10 @@
 // Standart column ranglari
 export const DEFAULT_COLUMN_COLORS = {
-  todo: '#3b82f6',      // Blue
-  'in-progress': '#f59e0b', // Yellow/Orange
-  review: '#8b5cf6',     // Purple
-  done: '#10b981',       // Green
-  failed: '#ef4444'      // Red
+  vazifalar: '#3b82f6',      // Blue
+  jarayonda: '#f59e0b', // Yellow/Orange
+  korib_chiqilmoqda: '#8b5cf6',     // Purple
+  bajarildi: '#10b981',       // Green
+  bajarilmadi: '#ef4444'      // Red
 };
 
 // Border color classes
@@ -51,11 +51,11 @@ export const AVAILABLE_COLORS = [
 
 // Column ID larini nomlari bilan
 export const COLUMN_NAMES = {
-  todo: 'Vazifalar',
-  'in-progress': 'Jarayonda',
-  review: 'Ko\'rib chiqilmoqda',
-  done: 'Bajarildi',
-  failed: 'Bajarilmadi'
+  vazifalar: 'Vazifalar',
+  jarayonda: 'Jarayonda',
+  korib_chiqilmoqda: 'Ko\'rib chiqilmoqda',
+  bajarildi: 'Bajarildi',
+  bajarilmadi: 'Bajarilmadi'
 };
 
 // Standart columnlarni yaratish uchun funksiya

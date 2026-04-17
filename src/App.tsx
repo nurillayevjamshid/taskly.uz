@@ -197,10 +197,10 @@ const translations = {
     attachments: "Birkiktirilgan fayllar",
     addAttachment: "Fayl qo'shish",
     noAttachments: "Fayllar yo'q",
-    assignee: "Mas'ul shaxs",
+    assignee: "Bajaruvi",
     startDate: "Boshlanish vaqti",
     endDate: "Tugash vaqti",
-    selectAssignee: "Mas'ulni tanlang"
+    selectAssignee: "Bajaruvchini tanlang"
   },
   en: {
     menu: "Menu",
