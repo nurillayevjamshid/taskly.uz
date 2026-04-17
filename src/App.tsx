@@ -50,6 +50,11 @@ export default function App() {
   const [addingCardToCol, setAddingCardToCol] = useState<string | null>(null);
   const [newCardTitle, setNewCardTitle] = useState('');
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isEditingTask, setIsEditingTask] = useState(false);
+  const [editTitle, setEditTitle] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [editDueDate, setEditDueDate] = useState('');
+  const [editAssignee, setEditAssignee] = useState('');
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isLoginMode, setIsLoginMode] = useState(true);
   const [authEmail, setAuthEmail] = useState('');
@@ -167,6 +172,42 @@ export default function App() {
 
   const handleLogout = () => {
     logout();
+  };
+
+  const handleEditTask = () => {
+    if (!selectedTask) return;
+    setIsEditingTask(true);
+    setEditTitle(selectedTask.title);
+    setEditDescription(selectedTask.description || '');
+    setEditDueDate(selectedTask.dueDate ? selectedTask.dueDate.split('T')[0] : '');
+    setEditAssignee(selectedTask.assignee || '');
+  };
+
+  const handleSaveTask = async () => {
+    if (!selectedTask) return;
+
+    try {
+      await updateTask(selectedTask.id, {
+        title: editTitle,
+        description: editDescription,
+        dueDate: editDueDate ? new Date(editDueDate).toISOString() : null,
+        assignee: editAssignee || null
+      });
+      setIsEditingTask(false);
+      // Refresh columns to get updated task
+      const updatedColumns = columns.map(col => ({
+        ...col,
+        tasks: col.tasks.map(task =>
+          task.id === selectedTask.id
+            ? { ...task, title: editTitle, description: editDescription, dueDate: editDueDate ? new Date(editDueDate).toISOString() : null, assignee: editAssignee || null }
+            : task
+        )
+      }));
+      setColumns(updatedColumns);
+      setSelectedTask(null);
+    } catch (error) {
+      console.error('Failed to update task:', error);
+    }
   };
 
   const handleDeleteColumn = async (columnId: string) => {
@@ -361,75 +402,151 @@ export default function App() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
             <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-              <h2 className="text-xl font-semibold">{selectedTask.title}</h2>
-              <button
-                onClick={() => setSelectedTask(null)}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              <h2 className="text-xl font-semibold">
+                {isEditingTask ? 'Taskni tahrirlash' : selectedTask.title}
+              </h2>
+              <div className="flex items-center gap-2">
+                {!isEditingTask && (
+                  <button
+                    onClick={handleEditTask}
+                    className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                  >
+                    Tahrirlash
+                  </button>
+                )}
+                <button
+                  onClick={() => {
+                    setSelectedTask(null);
+                    setIsEditingTask(false);
+                  }}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
             </div>
             <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
-              {selectedTask.description && (
-                <div className="mb-4">
-                  <h3 className="font-medium text-gray-700 mb-2">Tavsif</h3>
-                  <p className="text-gray-600">{selectedTask.description}</p>
-                </div>
-              )}
-              {selectedTask.dueDate && (
-                <div className="mb-4">
-                  <h3 className="font-medium text-gray-700 mb-2">Muddat</h3>
-                  <p className="text-gray-600">{new Date(selectedTask.dueDate).toLocaleDateString()}</p>
-                </div>
-              )}
-              {selectedTask.assignee && (
-                <div className="mb-4">
-                  <h3 className="font-medium text-gray-700 mb-2">Mas'ul</h3>
-                  <p className="text-gray-600">{selectedTask.assignee}</p>
-                </div>
-              )}
-              {selectedTask.tags.length > 0 && (
-                <div className="mb-4">
-                  <h3 className="font-medium text-gray-700 mb-2">Teglar</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedTask.tags.map((tag) => (
-                      <span
-                        key={tag.id}
-                        className="text-sm px-3 py-1 rounded-full"
-                        style={{ backgroundColor: tag.color }}
-                      >
-                        {tag.text}
-                      </span>
-                    ))}
+              {isEditingTask ? (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                    <input
+                      type="text"
+                      value={editTitle}
+                      onChange={(e) => setEditTitle(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Tavsif</label>
+                    <textarea
+                      value={editDescription}
+                      onChange={(e) => setEditDescription(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                      rows={3}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Muddat</label>
+                    <input
+                      type="date"
+                      value={editDueDate}
+                      onChange={(e) => setEditDueDate(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Mas'ul</label>
+                    <input
+                      type="text"
+                      value={editAssignee}
+                      onChange={(e) => setEditAssignee(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Mas'ul shaxs"
+                    />
                   </div>
                 </div>
-              )}
-              {selectedTask.comments.length > 0 && (
-                <div className="mb-4">
-                  <h3 className="font-medium text-gray-700 mb-2">Izohlar</h3>
-                  <div className="space-y-2">
-                    {selectedTask.comments.map((comment) => (
-                      <div key={comment.id} className="bg-gray-50 rounded-lg p-3">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="font-medium text-sm">{comment.author}</span>
-                          <span className="text-xs text-gray-500">
-                            {new Date(comment.createdAt).toLocaleString()}
+              ) : (
+                <>
+                  {selectedTask.description && (
+                    <div className="mb-4">
+                      <h3 className="font-medium text-gray-700 mb-2">Tavsif</h3>
+                      <p className="text-gray-600">{selectedTask.description}</p>
+                    </div>
+                  )}
+                  {selectedTask.dueDate && (
+                    <div className="mb-4">
+                      <h3 className="font-medium text-gray-700 mb-2">Muddat</h3>
+                      <p className="text-gray-600">{new Date(selectedTask.dueDate).toLocaleDateString()}</p>
+                    </div>
+                  )}
+                  {selectedTask.assignee && (
+                    <div className="mb-4">
+                      <h3 className="font-medium text-gray-700 mb-2">Mas'ul</h3>
+                      <p className="text-gray-600">{selectedTask.assignee}</p>
+                    </div>
+                  )}
+                  {selectedTask.tags.length > 0 && (
+                    <div className="mb-4">
+                      <h3 className="font-medium text-gray-700 mb-2">Teglar</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedTask.tags.map((tag) => (
+                          <span
+                            key={tag.id}
+                            className="text-sm px-3 py-1 rounded-full"
+                            style={{ backgroundColor: tag.color }}
+                          >
+                            {tag.text}
                           </span>
-                        </div>
-                        <p className="text-sm text-gray-600">{comment.text}</p>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                </div>
+                    </div>
+                  )}
+                  {selectedTask.comments.length > 0 && (
+                    <div className="mb-4">
+                      <h3 className="font-medium text-gray-700 mb-2">Izohlar</h3>
+                      <div className="space-y-2">
+                        {selectedTask.comments.map((comment) => (
+                          <div key={comment.id} className="bg-gray-50 rounded-lg p-3">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="font-medium text-sm">{comment.author}</span>
+                              <span className="text-xs text-gray-500">
+                                {new Date(comment.createdAt).toLocaleString()}
+                              </span>
+                            </div>
+                            <p className="text-sm text-gray-600">{comment.text}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </div>
-            <div className="p-6 border-t border-gray-200 flex justify-end">
-              <button
-                onClick={() => handleDeleteTask(selectedTask.id)}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-              >
-                Taskni o'chirish
-              </button>
+            <div className="p-6 border-t border-gray-200 flex justify-between">
+              {isEditingTask ? (
+                <>
+                  <button
+                    onClick={() => setIsEditingTask(false)}
+                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                  >
+                    Bekor qilish
+                  </button>
+                  <button
+                    onClick={handleSaveTask}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    Saqlash
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => handleDeleteTask(selectedTask.id)}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  Taskni o'chirish
+                </button>
+              )}
             </div>
           </div>
         </div>
