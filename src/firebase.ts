@@ -3,12 +3,12 @@ import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "YOUR_API_KEY",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "taskly-uz.firebaseapp.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "taskly-uz",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "taskly-uz.appspot.com",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "YOUR_MESSAGING_SENDER_ID",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "YOUR_APP_ID"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyClx1nTp_t-LGeJpsgj2bEWGvL-oIbGb5E",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "taskly-de0b5.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "taskly-de0b5",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "taskly-de0b5.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "816744541754",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:816744541754:web:298152bd4a2630f3618f03"
 };
 
 const app = initializeApp(firebaseConfig);
