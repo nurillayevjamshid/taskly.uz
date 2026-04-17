@@ -92,35 +92,9 @@ export const useIntegratedColumns = () => {
         const columnsData = columnsSnapshot.docs.map(doc => 
           convertFromFirestoreData({ id: doc.id, ...doc.data() })
         ) as Column[];
-
-        // Tasks listener
-        const tasksQuery = query(collection(db, 'tasks'), orderBy('createdAt'));
-        const tasksUnsubscribe = onSnapshot(
-          tasksQuery,
-          (tasksSnapshot) => {
-            const tasksData = tasksSnapshot.docs.map(doc => 
-              convertFromFirestoreData({ id: doc.id, ...doc.data() })
-            ) as Task[];
-
-            // Vazifalarni ustunlarga bo'lish
-            const columnsWithTasks = columnsData.map(column => ({
-              ...column,
-              tasks: tasksData
-                .filter(task => task.columnId === column.id)
-                .sort((a, b) => a.order - b.order)
-            }));
-
-            setColumns(columnsWithTasks);
-            setLoading(false);
-            setError(null);
-          },
-          (err) => {
-            setError('Vazifalarni yuklashda xatolik: ' + err.message);
-            setLoading(false);
-          }
-        );
-
-        return () => tasksUnsubscribe();
+        setColumns(columnsData);
+        setLoading(false);
+        setError(null);
       },
       (err) => {
         setError('Ustunlarni yuklashda xatolik: ' + err.message);
@@ -129,6 +103,34 @@ export const useIntegratedColumns = () => {
     );
 
     return () => columnsUnsubscribe();
+  }, []);
+
+  // Tasks listener - alohida
+  useEffect(() => {
+    const tasksQuery = query(collection(db, 'tasks'), orderBy('createdAt'));
+    const tasksUnsubscribe = onSnapshot(
+      tasksQuery,
+      (tasksSnapshot) => {
+        const tasksData = tasksSnapshot.docs.map(doc => 
+          convertFromFirestoreData({ id: doc.id, ...doc.data() })
+        ) as Task[];
+        
+        // Vazifalarni columns ga bo'lish
+        setColumns(prevColumns => 
+          prevColumns.map(column => ({
+            ...column,
+            tasks: tasksData
+              .filter(task => task.columnId === column.id)
+              .sort((a, b) => a.order - b.order)
+          }))
+        );
+      },
+      (err) => {
+        setError('Vazifalarni yuklashda xatolik: ' + err.message);
+      }
+    );
+
+    return () => tasksUnsubscribe();
   }, []);
 
   const createColumn = async (title: string, color?: string, order?: number) => {
