@@ -292,7 +292,7 @@ export const useProjects = () => {
     }
   };
 
-  const createProject = async (name: string, userId: string) => {
+  const createProject = async (name: string, userId?: string) => {
     try {
       const response = await fetch(`${API_BASE}/projects`, {
         method: 'POST',

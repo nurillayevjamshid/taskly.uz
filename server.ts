@@ -51,7 +51,10 @@ app.post('/api/projects', async (req, res) => {
   try {
     const { name, userId } = req.body;
     const project = await prisma.project.create({
-      data: { name, userId }
+      data: { 
+        name, 
+        userId: userId || null 
+      }
     });
     res.json(project);
   } catch (error) {

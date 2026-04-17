@@ -788,9 +788,9 @@ export default function App() {
 
   const handleAddProject = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newProjectName.trim() && user?.id) {
+    if (newProjectName.trim()) {
       try {
-        await createProject(newProjectName.trim(), user.id);
+        await createProject(newProjectName.trim(), user?.id);
         setNewProjectName('');
         setIsProjectModalOpen(false);
       } catch (error) {
