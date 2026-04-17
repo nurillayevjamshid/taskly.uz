@@ -644,16 +644,16 @@ function UserDropdown({ isOpen, onClose, position }: { isOpen: boolean; onClose:
 
   return (
     <div 
-      className="fixed z-50"
+      className="fixed z-50 left-4 right-4 sm:left-auto sm:right-auto"
       style={{ 
-        left: `${position.x}px`, 
+        left: position ? `${position.x}px` : 'auto',
         top: `${position.y}px`,
         transform: 'translate(-50%, 0)'
       }}
     >
       <div 
         ref={dropdownRef}
-        className="bg-white rounded-xl shadow-xl border border-gray-200 w-80 max-h-96 overflow-hidden transform transition-all"
+        className="bg-white rounded-xl shadow-xl border border-gray-200 w-full max-w-[calc(100vw-2rem)] sm:w-80 max-h-96 overflow-hidden transform transition-all"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

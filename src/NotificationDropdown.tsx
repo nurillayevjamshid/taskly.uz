@@ -112,7 +112,7 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
     <div className="fixed inset-0 z-50" onClick={onClose}>
       <div 
         ref={dropdownRef}
-        className="absolute right-16 top-16 w-96 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden max-h-[600px] flex flex-col"
+        className="absolute right-4 sm:right-16 top-16 left-4 sm:left-auto w-auto max-w-[calc(100vw-2rem)] sm:w-96 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden max-h-[600px] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
