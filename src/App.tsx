@@ -8,7 +8,8 @@ import Cropper from 'react-easy-crop';
 import ProfileDropdown from './ProfileDropdown';
 import NotificationDropdown from './NotificationDropdown';
 import ColumnOptionsModal from './ColumnOptionsModal';
-import { useFirestoreColumns, useFirestoreTasks, useFirestoreProjects } from './hooks/useFirestore';
+import { useIntegratedColumns } from './hooks/useFirestoreIntegrated';
+import { useFirestoreProjects } from './hooks/useFirestore';
 import { useFirebaseAuth } from './hooks/useFirebaseAuth';
 import {
   LayoutDashboard,
@@ -613,8 +614,8 @@ function UserDropdown({ isOpen, onClose, position }: { isOpen: boolean; onClose:
 }
 
 export default function App() {
-  const { columns, setColumns, loading: columnsLoading, createColumn, updateColumn, deleteColumn } = useFirestoreColumns();
-  const { createTask, updateTask, deleteTask } = useFirestoreTasks();
+  const { columns, setColumns, loading: columnsLoading, createColumn, updateColumn, deleteColumn, createTask, updateTask, deleteTask } = useIntegratedColumns();
+  // createTask, updateTask, deleteTask endi useIntegratedColumns dan keladi
   
   // Debug: log columns state
   useEffect(() => {
