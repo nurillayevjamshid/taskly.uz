@@ -11,6 +11,7 @@ import ColumnOptionsModal from './ColumnOptionsModal';
 import { useIntegratedColumns } from './hooks/useFirestoreIntegrated';
 import { useFirestoreProjects } from './hooks/useFirestore';
 import { useFirebaseAuth } from './hooks/useFirebaseAuth';
+import { BORDER_COLOR_CLASSES, BG_COLOR_CLASSES, AVAILABLE_COLORS } from './constants/columnColors';
 import {
   LayoutDashboard,
   KanbanSquare,
@@ -614,7 +615,7 @@ function UserDropdown({ isOpen, onClose, position }: { isOpen: boolean; onClose:
 }
 
 export default function App() {
-  const { columns, setColumns, loading: columnsLoading, createColumn, updateColumn, deleteColumn, createTask, updateTask, deleteTask } = useIntegratedColumns();
+  const { columns, setColumns, loading: columnsLoading, createColumn, updateColumn, deleteColumn, createTask, updateTask, deleteTask, createDefaultColumnsIfNeeded, updateColumnColor } = useIntegratedColumns();
   // createTask, updateTask, deleteTask endi useIntegratedColumns dan keladi
   
   // Debug: log columns state
@@ -1036,24 +1037,14 @@ export default function App() {
   };
 
   const getColumnColor = (column: ColumnData) => {
-    return column.color ? `border-t-4 ${column.color}` : 'border-t-4 border-gray-500';
+    const borderClass = column.color ? BORDER_COLOR_CLASSES[column.color] || 'border-gray-500' : 'border-gray-500';
+    return `border-t-4 ${borderClass}`;
   };
 
   const getCardBackgroundColor = (column: ColumnData) => {
     if (!column.color) return 'bg-white';
     
-    const colorMap: { [key: string]: string } = {
-      'border-blue-500': 'bg-blue-50',
-      'border-yellow-500': 'bg-yellow-50',
-      'border-purple-500': 'bg-purple-50',
-      'border-green-500': 'bg-green-50',
-      'border-red-500': 'bg-red-50',
-      'border-orange-500': 'bg-orange-50',
-      'border-pink-500': 'bg-pink-50',
-      'border-gray-500': 'bg-gray-50'
-    };
-    
-    return colorMap[column.color] || 'bg-white';
+    return BG_COLOR_CLASSES[column.color] || 'bg-white';
   };
 
   const formatDateTime = (dateString: string) => {

@@ -14,6 +14,7 @@ import {
   Timestamp
 } from 'firebase/firestore';
 import { db } from '../firebase';
+import { DEFAULT_COLUMN_COLORS, createDefaultColumns } from '../constants/columnColors';
 
 type Tag = {
   id: string;
@@ -243,6 +244,38 @@ export const useIntegratedColumns = () => {
     }
   };
 
+  // Standart columnlarni yaratish
+  const createDefaultColumnsIfNeeded = async () => {
+    try {
+      const columnsQuery = query(collection(db, 'columns'));
+      const columnsSnapshot = await getDocs(columnsQuery);
+      
+      if (columnsSnapshot.empty) {
+        // Standart columnlarni yaratish
+        const defaultColumns = createDefaultColumns();
+        
+        for (const column of defaultColumns) {
+          await addDoc(collection(db, 'columns'), convertToFirestoreData(column));
+        }
+        
+        console.log('Standart columnlar yaratildi');
+      }
+    } catch (err: any) {
+      console.error('Standart columnlarni yaratishda xatolik:', err);
+    }
+  };
+
+  // Column rangini o'zgartirish
+  const updateColumnColor = async (columnId: string, color: string) => {
+    try {
+      await updateColumn(columnId, { color });
+      console.log(`Column ${columnId} rangi ${color} ga o\'zgartirildi`);
+    } catch (err: any) {
+      setError('Column rangini o\'zgartirishda xatolik: ' + err.message);
+      throw err;
+    }
+  };
+
   return { 
     columns, 
     setColumns, 
@@ -253,6 +286,8 @@ export const useIntegratedColumns = () => {
     deleteColumn,
     createTask,
     updateTask,
-    deleteTask
+    deleteTask,
+    createDefaultColumnsIfNeeded,
+    updateColumnColor
   };
 };

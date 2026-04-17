@@ -8,6 +8,7 @@ import {
   X,
   Palette
 } from 'lucide-react';
+import { AVAILABLE_COLORS } from './constants/columnColors';
 
 interface ColumnOptionsModalProps {
   isOpen: boolean;
@@ -36,16 +37,7 @@ export default function ColumnOptionsModal({
 }: ColumnOptionsModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
 
-  const colors = [
-    { name: 'blue', class: 'border-blue-500', bgClass: 'bg-blue-500' },
-    { name: 'yellow', class: 'border-yellow-500', bgClass: 'bg-yellow-500' },
-    { name: 'purple', class: 'border-purple-500', bgClass: 'bg-purple-500' },
-    { name: 'green', class: 'border-green-500', bgClass: 'bg-green-500' },
-    { name: 'red', class: 'border-red-500', bgClass: 'bg-red-500' },
-    { name: 'orange', class: 'border-orange-500', bgClass: 'bg-orange-500' },
-    { name: 'pink', class: 'border-pink-500', bgClass: 'bg-pink-500' },
-    { name: 'gray', class: 'border-gray-500', bgClass: 'bg-gray-500' }
-  ];
+  const colors = AVAILABLE_COLORS;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -136,13 +128,13 @@ export default function ColumnOptionsModal({
               <div className="grid grid-cols-8 gap-2">
                 {colors.map((color) => (
                   <button
-                    key={color.name}
+                    key={color.value}
                     onClick={() => {
-                      onChangeColumnColor(color.class);
+                      onChangeColumnColor(color.value);
                       onClose();
                     }}
                     className={`w-8 h-8 rounded-full ${color.bgClass} hover:scale-110 transition-transform border-2 border-white shadow-sm`}
-                    title={color.name}
+                    title={color.label}
                   />
                 ))}
               </div>
