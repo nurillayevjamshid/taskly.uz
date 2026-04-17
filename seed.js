@@ -3,12 +3,13 @@ const API_BASE = 'http://localhost:3001/api';
 async function seed() {
   console.log('🌱 Seeding demo data...');
 
-  // Create columns
+  // Create standard columns
   const columns = [
-    { title: 'To Do', color: '#3b82f6', order: 0 },
-    { title: 'In Progress', color: '#f59e0b', order: 1 },
-    { title: 'Review', color: '#8b5cf6', order: 2 },
-    { title: 'Done', color: '#10b981', order: 3 }
+    { title: 'Vazifalar', color: '#3b82f6', order: 0, isStandard: true },
+    { title: 'Jarayonda', color: '#f59e0b', order: 1, isStandard: true },
+    { title: "Ko'rib chiqilmoqda", color: '#8b5cf6', order: 2, isStandard: true },
+    { title: 'Bajarildi', color: '#10b981', order: 3, isStandard: true },
+    { title: 'Bajarilmadi', color: '#ef4444', order: 4, isStandard: true }
   ];
 
   const createdColumns = [];
@@ -53,6 +54,12 @@ async function seed() {
       title: 'Testlash',
       description: 'Barcha funksiyalarni test qilish',
       columnId: createdColumns[3].id,
+      order: 0
+    },
+    {
+      title: 'Xatolikni tuzatish',
+      description: 'Backend bilan bog\'lanishdagi muammolarni hal qilish',
+      columnId: createdColumns[4].id,
       order: 0
     }
   ];

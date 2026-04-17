@@ -172,9 +172,9 @@ app.get('/api/columns', async (req, res) => {
 
 app.post('/api/columns', async (req, res) => {
   try {
-    const { title, color, order } = req.body;
+    const { title, color, order, isStandard } = req.body;
     const column = await prisma.column.create({
-      data: { title, color, order }
+      data: { title, color, order, isStandard: isStandard || false }
     });
     res.json(column);
   } catch (error) {
@@ -197,6 +197,14 @@ app.put('/api/columns/:id', async (req, res) => {
 
 app.delete('/api/columns/:id', async (req, res) => {
   try {
+    const column = await prisma.column.findUnique({
+      where: { id: req.params.id }
+    });
+    
+    if (column && column.isStandard) {
+      return res.status(403).json({ error: 'Standard columnlarni o\'chirish mumkin emas' });
+    }
+    
     await prisma.column.delete({
       where: { id: req.params.id }
     });

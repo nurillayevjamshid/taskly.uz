@@ -14,6 +14,7 @@ interface ColumnOptionsModalProps {
   onClose: () => void;
   columnId: string;
   columnTitle: string;
+  isStandard: boolean;
   onEditColumn: () => void;
   onDeleteColumn: () => void;
   onArchiveColumn: () => void;
@@ -26,6 +27,7 @@ export default function ColumnOptionsModal({
   onClose,
   columnId,
   columnTitle,
+  isStandard,
   onEditColumn,
   onDeleteColumn,
   onArchiveColumn,
@@ -108,16 +110,18 @@ export default function ColumnOptionsModal({
               <span>Ustunni nusxalash</span>
             </button>
             
-            <button
-              onClick={() => {
-                onArchiveColumn();
-                onClose();
-              }}
-              className="w-full flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors group"
-            >
-              <Archive className="w-4 h-4 mr-3 text-gray-400 group-hover:text-gray-600" />
-              <span>Ustunni arxivlash</span>
-            </button>
+            {!isStandard && (
+              <button
+                onClick={() => {
+                  onArchiveColumn();
+                  onClose();
+                }}
+                className="w-full flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors group"
+              >
+                <Archive className="w-4 h-4 mr-3 text-gray-400 group-hover:text-gray-600" />
+                <span>Ustunni arxivlash</span>
+              </button>
+            )}
             
             <div className="border-t border-gray-100 my-1"></div>
             
@@ -144,16 +148,18 @@ export default function ColumnOptionsModal({
             
             <div className="border-t border-gray-100 my-1"></div>
             
-            <button
-              onClick={() => {
-                onDeleteColumn();
-                onClose();
-              }}
-              className="w-full flex items-center px-4 py-3 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors group"
-            >
-              <Trash2 className="w-4 h-4 mr-3 text-red-500 group-hover:text-red-600" />
-              <span>Ustunni o'chirish</span>
-            </button>
+            {!isStandard && (
+              <button
+                onClick={() => {
+                  onDeleteColumn();
+                  onClose();
+                }}
+                className="w-full flex items-center px-4 py-3 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors group"
+              >
+                <Trash2 className="w-4 h-4 mr-3 text-red-500 group-hover:text-red-600" />
+                <span>Ustunni o'chirish</span>
+              </button>
+            )}
           </div>
         </div>
       </div>

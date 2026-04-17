@@ -65,6 +65,7 @@ type ColumnData = {
   tasks: Task[];
   color: string | null;
   order: number;
+  isStandard: boolean;
   createdAt: string;
   updatedAt: string;
 };
@@ -641,11 +642,12 @@ export default function App() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Column options handlers
-  const openColumnOptions = (columnId: string, columnTitle: string) => {
+  const openColumnOptions = (columnId: string, columnTitle: string, isStandard: boolean) => {
     setColumnOptionsModal({
       isOpen: true,
       columnId,
-      columnTitle
+      columnTitle,
+      isStandard
     });
   };
 
@@ -653,7 +655,8 @@ export default function App() {
     setColumnOptionsModal({
       isOpen: false,
       columnId: '',
-      columnTitle: ''
+      columnTitle: '',
+      isStandard: false
     });
   };
 
@@ -662,9 +665,13 @@ export default function App() {
     console.log('Edit column:', columnOptionsModal.columnId);
   };
 
-  const handleDeleteColumn = () => {
-    // TODO: Implement column deletion functionality
-    console.log('Delete column:', columnOptionsModal.columnId);
+  const handleDeleteColumn = async () => {
+    try {
+      await deleteColumn(columnOptionsModal.columnId);
+    } catch (error) {
+      console.error('Failed to delete column:', error);
+      alert('Ustunni o\'chirishda xatolik yuz berdi.');
+    }
   };
 
   const handleArchiveColumn = () => {
@@ -704,10 +711,12 @@ export default function App() {
     isOpen: boolean;
     columnId: string;
     columnTitle: string;
+    isStandard: boolean;
   }>({
     isOpen: false,
     columnId: '',
-    columnTitle: ''
+    columnTitle: '',
+    isStandard: false
   });
 
   // User dropdown state
@@ -1381,8 +1390,8 @@ export default function App() {
                             {col.tasks.length}
                           </span>
                         </div>
-                        <button 
-                          onClick={() => openColumnOptions(col.id, t(col.id as keyof typeof translations['uz']) || col.title)}
+                        <button
+                          onClick={() => openColumnOptions(col.id, t(col.id as keyof typeof translations['uz']) || col.title, col.isStandard)}
                           className="text-gray-400 hover:text-gray-600 p-1 rounded hover:bg-gray-200 transition-colors"
                         >
                           <MoreHorizontal className="w-4 h-4" />
@@ -2351,6 +2360,7 @@ export default function App() {
         onClose={closeColumnOptions}
         columnId={columnOptionsModal.columnId}
         columnTitle={columnOptionsModal.columnTitle}
+        isStandard={columnOptionsModal.isStandard}
         onEditColumn={handleEditColumn}
         onDeleteColumn={handleDeleteColumn}
         onArchiveColumn={handleArchiveColumn}

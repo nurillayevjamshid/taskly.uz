@@ -106,6 +106,7 @@ type Column = {
   title: string;
   color: string | null;
   order: number;
+  isStandard: boolean;
   tasks: Task[];
   createdAt: string;
   updatedAt: string;
@@ -121,7 +122,31 @@ export const useColumns = () => {
       setLoading(true);
       const response = await fetch(`${API_BASE}/columns`);
       const data = await response.json();
-      setColumns(data);
+      
+      // If no columns exist, create standard columns
+      if (data.length === 0) {
+        const standardColumns = [
+          { title: 'Vazifalar', color: '#3b82f6', order: 0, isStandard: true },
+          { title: 'Jarayonda', color: '#f59e0b', order: 1, isStandard: true },
+          { title: "Ko'rib chiqilmoqda", color: '#8b5cf6', order: 2, isStandard: true },
+          { title: 'Bajarildi', color: '#10b981', order: 3, isStandard: true },
+          { title: 'Bajarilmadi', color: '#ef4444', order: 4, isStandard: true }
+        ];
+        
+        const createdColumns = [];
+        for (const col of standardColumns) {
+          const createResponse = await fetch(`${API_BASE}/columns`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(col)
+          });
+          const newCol = await createResponse.json();
+          createdColumns.push(newCol);
+        }
+        setColumns(createdColumns);
+      } else {
+        setColumns(data);
+      }
       setError(null);
     } catch (err) {
       setError('Failed to fetch columns');
