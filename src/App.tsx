@@ -620,6 +620,21 @@ export default function App() {
     console.log('Columns in App:', columns);
     console.log('Columns loading:', columnsLoading);
   }, [columns, columnsLoading]);
+
+  // Create default columns if empty (fallback when API fails)
+  useEffect(() => {
+    if (!columnsLoading && columns.length === 0) {
+      console.log('Creating default columns in App...');
+      const defaultColumns: ColumnData[] = [
+        { id: 'todo', title: 'Vazifalar', tasks: [], color: '#3b82f6', order: 0, isStandard: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+        { id: 'in-progress', title: 'Jarayonda', tasks: [], color: '#f59e0b', order: 1, isStandard: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+        { id: 'review', title: "Ko'rib chiqilmoqda", tasks: [], color: '#8b5cf6', order: 2, isStandard: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+        { id: 'done', title: 'Bajarildi', tasks: [], color: '#10b981', order: 3, isStandard: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+        { id: 'failed', title: 'Bajarilmadi', tasks: [], color: '#ef4444', order: 4, isStandard: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
+      ];
+      setColumns(defaultColumns);
+    }
+  }, [columnsLoading, columns.length, setColumns]);
   const { projects, createProject, deleteProject } = useProjects();
   const { user } = useAuth();
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
