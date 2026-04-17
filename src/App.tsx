@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { Plus, X, Calendar, MessageSquare, Paperclip, MoreHorizontal, LogOut } from 'lucide-react';
-import { useColumns, useTasks, useAuth } from './hooks/useApi';
+import { useColumns, useTasks, useAuth, useComments } from './hooks/useApi';
 
 type Tag = {
   id: string;
@@ -47,6 +47,7 @@ export default function App() {
   const { user, token, loading: authLoading, login, register, logout } = useAuth();
   const { columns, setColumns, loading: columnsLoading, createColumn, deleteColumn } = useColumns();
   const { createTask, updateTask, deleteTask } = useTasks();
+  const { createComment } = useComments();
   const [addingCardToCol, setAddingCardToCol] = useState<string | null>(null);
   const [newCardTitle, setNewCardTitle] = useState('');
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -55,6 +56,7 @@ export default function App() {
   const [editDescription, setEditDescription] = useState('');
   const [editDueDate, setEditDueDate] = useState('');
   const [editAssignee, setEditAssignee] = useState('');
+  const [newCommentText, setNewCommentText] = useState('');
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isLoginMode, setIsLoginMode] = useState(true);
   const [authEmail, setAuthEmail] = useState('');
@@ -207,6 +209,28 @@ export default function App() {
       setSelectedTask(null);
     } catch (error) {
       console.error('Failed to update task:', error);
+    }
+  };
+
+  const handleAddComment = async () => {
+    if (!selectedTask || !newCommentText.trim()) return;
+
+    try {
+      const newComment = await createComment(selectedTask.id, newCommentText, user?.name || user?.email || 'Anonymous');
+      setNewCommentText('');
+      // Update task with new comment
+      const updatedColumns = columns.map(col => ({
+        ...col,
+        tasks: col.tasks.map(task =>
+          task.id === selectedTask.id
+            ? { ...task, comments: [...task.comments, newComment] }
+            : task
+        )
+      }));
+      setColumns(updatedColumns);
+      setSelectedTask({ ...selectedTask, comments: [...selectedTask.comments, newComment] });
+    } catch (error) {
+      console.error('Failed to add comment:', error);
     }
   };
 
@@ -517,6 +541,30 @@ export default function App() {
                             <p className="text-sm text-gray-600">{comment.text}</p>
                           </div>
                         ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {user && (
+                    <div className="mb-4">
+                      <h3 className="font-medium text-gray-700 mb-2">Izoh qo'shish</h3>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={newCommentText}
+                          onChange={(e) => setNewCommentText(e.target.value)}
+                          placeholder="Izoh yozing..."
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleAddComment();
+                          }}
+                        />
+                        <button
+                          onClick={handleAddComment}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                        >
+                          Yuborish
+                        </button>
                       </div>
                     </div>
                   )}

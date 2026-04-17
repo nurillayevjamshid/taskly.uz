@@ -264,3 +264,23 @@ export const useTasks = () => {
 
   return { tasks, loading, error, fetchTasks, createTask, updateTask, deleteTask };
 };
+
+export const useComments = () => {
+  const createComment = async (taskId: string, text: string, author: string) => {
+    const response = await fetch(`${API_BASE}/tasks/${taskId}/comments`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, author })
+    });
+    return response.json();
+  };
+
+  const deleteComment = async (commentId: string) => {
+    const response = await fetch(`${API_BASE}/comments/${commentId}`, {
+      method: 'DELETE'
+    });
+    return response.json();
+  };
+
+  return { createComment, deleteComment };
+};
