@@ -185,14 +185,6 @@ app.post('/api/columns', async (req, res) => {
 app.put('/api/columns/:id', async (req, res) => {
   try {
     const { title, color, order } = req.body;
-    const existingColumn = await prisma.column.findUnique({
-      where: { id: req.params.id }
-    });
-    
-    if (existingColumn && existingColumn.isStandard && title && title !== existingColumn.title) {
-      return res.status(403).json({ error: 'Standard column nomini o\'zgartirish mumkin emas' });
-    }
-    
     const column = await prisma.column.update({
       where: { id: req.params.id },
       data: { title, color, order }
