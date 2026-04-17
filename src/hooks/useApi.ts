@@ -107,7 +107,7 @@ export const useColumns = () => {
     fetchColumns();
   }, []);
 
-  return { columns, loading, error, fetchColumns, createColumn, updateColumn, deleteColumn };
+  return { columns, setColumns, loading, error, fetchColumns, createColumn, updateColumn, deleteColumn };
 };
 
 export const useTasks = () => {
