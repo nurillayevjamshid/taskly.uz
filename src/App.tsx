@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
-import { Plus, X, Calendar, MessageSquare, Paperclip, MoreHorizontal } from 'lucide-react';
-import { useColumns, useTasks } from './hooks/useApi';
+import { Plus, X, Calendar, MessageSquare, Paperclip, MoreHorizontal, LogOut } from 'lucide-react';
+import { useColumns, useTasks, useAuth } from './hooks/useApi';
 
 type Tag = {
   id: string;
@@ -44,11 +44,18 @@ type Column = {
 };
 
 export default function App() {
+  const { user, token, loading: authLoading, login, register, logout } = useAuth();
   const { columns, setColumns, loading: columnsLoading, createColumn, deleteColumn } = useColumns();
   const { createTask, updateTask, deleteTask } = useTasks();
   const [addingCardToCol, setAddingCardToCol] = useState<string | null>(null);
   const [newCardTitle, setNewCardTitle] = useState('');
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isLoginMode, setIsLoginMode] = useState(true);
+  const [authEmail, setAuthEmail] = useState('');
+  const [authPassword, setAuthPassword] = useState('');
+  const [authName, setAuthName] = useState('');
+  const [authError, setAuthError] = useState('');
 
   const handleAddCard = async (columnId: string) => {
     if (!newCardTitle.trim()) return;
@@ -136,6 +143,32 @@ export default function App() {
     }
   };
 
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError('');
+    try {
+      await login(authEmail, authPassword);
+      setIsAuthModalOpen(false);
+    } catch (error: any) {
+      setAuthError(error.error || 'Login qilishda xatolik');
+    }
+  };
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError('');
+    try {
+      await register(authEmail, authPassword, authName);
+      setIsAuthModalOpen(false);
+    } catch (error: any) {
+      setAuthError(error.error || 'Ro\'yxatdan o\'tishda xatolik');
+    }
+  };
+
+  const handleLogout = () => {
+    logout();
+  };
+
   const handleDeleteColumn = async (columnId: string) => {
     if (confirm('Bu column va uning barcha tasklarini o\'chirmoqchimisiz?')) {
       try {
@@ -146,7 +179,7 @@ export default function App() {
     }
   };
 
-  if (columnsLoading) {
+  if (columnsLoading || authLoading) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="text-xl">Loading...</div>
@@ -159,13 +192,34 @@ export default function App() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold text-gray-800">Taskly - Task Management</h1>
-          <button
-            onClick={handleAddColumn}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-          >
-            <Plus className="w-5 h-5" />
-            Column qo'shish
-          </button>
+          <div className="flex items-center gap-3">
+            {user ? (
+              <>
+                <span className="text-sm text-gray-600">{user.name || user.email}</span>
+                <button
+                  onClick={handleLogout}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Logout
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => setIsAuthModalOpen(true)}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Login
+              </button>
+            )}
+            <button
+              onClick={handleAddColumn}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
+            >
+              <Plus className="w-5 h-5" />
+              Column qo'shish
+            </button>
+          </div>
         </div>
 
         <DragDropContext onDragEnd={handleDragEnd}>
@@ -376,6 +430,81 @@ export default function App() {
               >
                 Taskni o'chirish
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Auth Modal */}
+      {isAuthModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
+            <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+              <h2 className="text-xl font-semibold">{isLoginMode ? 'Login' : 'Ro\'yxatdan o\'tish'}</h2>
+              <button
+                onClick={() => setIsAuthModalOpen(false)}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6">
+              <form onSubmit={isLoginMode ? handleLogin : handleRegister} className="space-y-4">
+                {!isLoginMode && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Ism</label>
+                    <input
+                      type="text"
+                      value={authName}
+                      onChange={(e) => setAuthName(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Ismingiz"
+                    />
+                  </div>
+                )}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <input
+                    type="email"
+                    value={authEmail}
+                    onChange={(e) => setAuthEmail(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="email@example.com"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                  <input
+                    type="password"
+                    value={authPassword}
+                    onChange={(e) => setAuthPassword(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="********"
+                    required
+                  />
+                </div>
+                {authError && (
+                  <div className="text-red-600 text-sm">{authError}</div>
+                )}
+                <button
+                  type="submit"
+                  className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  {isLoginMode ? 'Login' : 'Ro\'yxatdan o\'tish'}
+                </button>
+              </form>
+              <div className="mt-4 text-center">
+                <button
+                  onClick={() => {
+                    setIsLoginMode(!isLoginMode);
+                    setAuthError('');
+                  }}
+                  className="text-blue-600 hover:text-blue-700 text-sm"
+                >
+                  {isLoginMode ? 'Hisobingiz yo\'qmi? Ro\'yxatdan o\'ting' : 'Hisobingiz bormi? Login qiling'}
+                </button>
+              </div>
             </div>
           </div>
         </div>
