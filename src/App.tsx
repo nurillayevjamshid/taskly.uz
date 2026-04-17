@@ -1172,6 +1172,22 @@ export default function App() {
         </div>
         
         <div className="p-4 border-t border-gray-100">
+          {/* Mobile: Bell & Profile above New Board */}
+          <div className="flex md:hidden items-center justify-between mb-3 pb-3 border-b border-gray-100">
+            <button 
+              onClick={() => setIsNotificationDropdownOpen(!isNotificationDropdownOpen)}
+              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full relative transition-colors"
+            >
+              <Bell className="w-5 h-5" />
+              <span className="absolute top-1.5 right-1.5 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span>
+            </button>
+            <div 
+              onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+              className="h-8 w-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 text-white flex items-center justify-center font-semibold text-sm shadow-sm cursor-pointer border border-white ring-2 ring-transparent hover:ring-gray-200 transition-all overflow-hidden"
+            >
+              {userAvatar ? <img src={userAvatar} alt="User Avatar" className="w-full h-full object-cover" /> : 'JD'}
+            </div>
+          </div>
           <button className="flex items-center w-full px-2 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50 transition-colors">
             <Plus className="w-4 h-4 mr-3 text-gray-400" />
             {t('newBoard')}
@@ -1581,7 +1597,7 @@ export default function App() {
             </div>
             
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
               <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-sm font-medium text-gray-500">{t('totalTasks')}</h3>
@@ -1589,7 +1605,7 @@ export default function App() {
                     <ListTodo className="w-5 h-5 text-blue-600" />
                   </div>
                 </div>
-                <div className="text-3xl font-bold text-gray-900">{totalTasks}</div>
+                <div className="text-3xl font-bold text-gray-900">{totalTasks} <span className="text-lg font-medium text-gray-500">ta</span></div>
               </div>
               
               <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
@@ -1599,7 +1615,7 @@ export default function App() {
                     <Clock className="w-5 h-5 text-orange-600" />
                   </div>
                 </div>
-                <div className="text-3xl font-bold text-gray-900">{inProgressTasks}</div>
+                <div className="text-3xl font-bold text-gray-900">{inProgressTasks} <span className="text-lg font-medium text-gray-500">ta</span></div>
               </div>
 
               <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
@@ -1609,7 +1625,7 @@ export default function App() {
                     <CheckCircle2 className="w-5 h-5 text-green-600" />
                   </div>
                 </div>
-                <div className="text-3xl font-bold text-gray-900">{doneTasks}</div>
+                <div className="text-3xl font-bold text-gray-900">{doneTasks} <span className="text-lg font-medium text-gray-500">ta</span></div>
               </div>
 
               <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
@@ -1628,7 +1644,54 @@ export default function App() {
               <div className="px-6 py-5 border-b border-gray-200">
                 <h3 className="text-lg font-semibold text-gray-900">{t('allTasks')}</h3>
               </div>
-              <div className="overflow-x-auto">
+              {/* Mobile: Card view */}
+              <div className="md:hidden p-3 space-y-3">
+                {allTasks.map(task => (
+                  <div
+                    key={task.id}
+                    onClick={() => setSelectedTask(task)}
+                    className="bg-gray-50 rounded-xl p-4 border border-gray-100 active:bg-gray-100 transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <h4 className="text-sm font-semibold text-gray-900 leading-snug pr-2">{task.title}</h4>
+                      <span className={`shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                        task.statusId === 'done' ? 'bg-green-100 text-green-800' :
+                        task.statusId === 'in-progress' ? 'bg-orange-100 text-orange-800' :
+                        task.statusId === 'review' ? 'bg-purple-100 text-purple-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {t(task.statusId)}
+                      </span>
+                    </div>
+                    {task.description && (
+                      <p className="text-xs text-gray-500 line-clamp-2 mb-2">{task.description}</p>
+                    )}
+                    <div className="flex items-center justify-between">
+                      <div className="flex flex-wrap gap-1">
+                        {task.tags.slice(0, 2).map((tag, i) => (
+                          <span key={i} className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${tag.color}`}>
+                            {tag.text}
+                          </span>
+                        ))}
+                        {task.tags.length > 2 && (
+                          <span className="text-[10px] text-gray-400">+{task.tags.length - 2}</span>
+                        )}
+                      </div>
+                      <div className="flex items-center text-xs text-gray-400">
+                        <Calendar className="w-3 h-3 mr-1" />
+                        {task.dueDate}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {allTasks.length === 0 && (
+                  <div className="py-8 text-center text-gray-500 text-sm">
+                    {t('noTasks')}
+                  </div>
+                )}
+              </div>
+              {/* Desktop: Table view */}
+              <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider">
