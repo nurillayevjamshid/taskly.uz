@@ -795,6 +795,7 @@ export default function App() {
         setIsProjectModalOpen(false);
       } catch (error) {
         console.error('Failed to create project:', error);
+        alert('Loyiha qo\'shishda xatolik yuz berdi. Server ishlayotganini tekshiring.');
       }
     }
   };

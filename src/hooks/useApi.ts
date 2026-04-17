@@ -268,7 +268,7 @@ export const useTasks = () => {
 type Project = {
   id: string;
   name: string;
-  userId: string;
+  userId: string | null;
   createdAt: string;
   updatedAt: string;
 };
