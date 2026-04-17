@@ -614,6 +614,12 @@ function UserDropdown({ isOpen, onClose, position }: { isOpen: boolean; onClose:
 export default function App() {
   const { columns, setColumns, loading: columnsLoading, createColumn, updateColumn, deleteColumn } = useColumns();
   const { createTask, updateTask, deleteTask } = useTasks();
+  
+  // Debug: log columns state
+  useEffect(() => {
+    console.log('Columns in App:', columns);
+    console.log('Columns loading:', columnsLoading);
+  }, [columns, columnsLoading]);
   const { projects, createProject, deleteProject } = useProjects();
   const { user } = useAuth();
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);

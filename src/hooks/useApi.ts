@@ -120,8 +120,10 @@ export const useColumns = () => {
   const fetchColumns = async () => {
     try {
       setLoading(true);
+      console.log('Fetching columns from API...');
       const response = await fetch(`${API_BASE}/columns`);
       const data = await response.json();
+      console.log('Columns data received:', data);
       
       // If no columns exist, create standard columns
       if (data.length === 0) {
@@ -144,12 +146,15 @@ export const useColumns = () => {
           createdColumns.push(newCol);
         }
         setColumns(createdColumns);
+        console.log('Created standard columns:', createdColumns);
       } else {
         setColumns(data);
+        console.log('Loaded columns from API:', data);
       }
       setError(null);
     } catch (err) {
       setError('Failed to fetch columns');
+      console.error('Error fetching columns:', err);
     } finally {
       setLoading(false);
     }
