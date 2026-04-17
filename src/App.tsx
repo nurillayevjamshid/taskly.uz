@@ -654,7 +654,7 @@ export default function App() {
     };
   }, []);
   const { projects, createProject, deleteProject } = useFirestoreProjects();
-  const { user } = useFirebaseAuth();
+  const { user, switchAccount, logout } = useFirebaseAuth();
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
   const [draggingColId, setDraggingColId] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -2385,9 +2385,25 @@ export default function App() {
       <ProfileDropdown
         isOpen={isProfileDropdownOpen}
         onClose={() => setIsProfileDropdownOpen(false)}
-        userAvatar={userAvatar}
-        userName="Jamshid Nurillayev"
-        userEmail="jamshid@example.com"
+        userAvatar={user?.avatar || userAvatar}
+        userName={user?.name || 'Mehmon'}
+        userEmail={user?.email || 'guest@taskly.uz'}
+        onSwitchAccount={async () => {
+          try {
+            await switchAccount();
+          } catch (error: any) {
+            console.error('Hisobni almashtirishda xatolik:', error);
+            alert(error?.message || "Hisobni almashtirishda xatolik yuz berdi");
+          }
+        }}
+        onLogout={async () => {
+          try {
+            await logout();
+          } catch (error: any) {
+            console.error('Chiqishda xatolik:', error);
+            alert(error?.message || "Chiqishda xatolik yuz berdi");
+          }
+        }}
       />
       
       {/* Notification Dropdown */}

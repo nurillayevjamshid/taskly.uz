@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { 
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
   signOut,
   onAuthStateChanged,
   User as FirebaseUser
@@ -74,6 +76,64 @@ export const useFirebaseAuth = () => {
     }
   };
 
+  const loginWithGoogle = async (options?: { switchAccount?: boolean }) => {
+    try {
+      const provider = new GoogleAuthProvider();
+      // Google hisobini tanlash oynasini majburan ko'rsatish (hisoblarni almashtirish uchun)
+      provider.setCustomParameters({
+        prompt: options?.switchAccount ? 'select_account' : 'consent'
+      });
+
+      const result = await signInWithPopup(auth, provider);
+      const firebaseUser = result.user;
+
+      // Foydalanuvchi ma'lumotlarini Firestore dan olish yoki yaratish
+      const userRef = doc(db, 'users', firebaseUser.uid);
+      const userDoc = await getDoc(userRef);
+
+      const userData: User = {
+        id: firebaseUser.uid,
+        email: firebaseUser.email || '',
+        name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || null,
+        avatar: firebaseUser.photoURL || null
+      };
+
+      if (userDoc.exists()) {
+        // Mavjud foydalanuvchini yangilash (avatar/ism yangilangan bo'lishi mumkin)
+        const existing = userDoc.data() as User;
+        const merged: User = {
+          id: userData.id,
+          email: userData.email,
+          name: existing.name || userData.name,
+          avatar: existing.avatar || userData.avatar
+        };
+        await setDoc(userRef, merged, { merge: true });
+        setUser(merged);
+        return { user: merged };
+      }
+
+      await setDoc(userRef, userData);
+      setUser(userData);
+      return { user: userData };
+    } catch (error: any) {
+      // Foydalanuvchi oynani yopganda xato qaytarmaymiz
+      if (error?.code === 'auth/popup-closed-by-user' || error?.code === 'auth/cancelled-popup-request') {
+        return { user: null };
+      }
+      throw new Error(error.message || 'Google orqali kirishda xatolik yuz berdi');
+    }
+  };
+
+  const switchAccount = async () => {
+    // Avval joriy sessiyani tozalab, keyin Google hisob tanlash oynasini ochamiz
+    try {
+      await signOut(auth);
+    } catch {
+      // signOut xatoligini e'tiborsiz qoldiramiz
+    }
+    return loginWithGoogle({ switchAccount: true });
+  };
+
   const login = async (email: string, password: string) => {
     try {
       const result = await signInWithEmailAndPassword(auth, email, password);
@@ -127,6 +187,8 @@ export const useFirebaseAuth = () => {
     loading, 
     register, 
     login, 
+    loginWithGoogle,
+    switchAccount,
     logout, 
     updateUserProfile 
   };

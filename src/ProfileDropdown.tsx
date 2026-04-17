@@ -19,9 +19,11 @@ interface ProfileDropdownProps {
   userAvatar: string | null;
   userName: string;
   userEmail: string;
+  onSwitchAccount?: () => void;
+  onLogout?: () => void;
 }
 
-export default function ProfileDropdown({ isOpen, onClose, userAvatar, userName, userEmail }: ProfileDropdownProps) {
+export default function ProfileDropdown({ isOpen, onClose, userAvatar, userName, userEmail, onSwitchAccount, onLogout }: ProfileDropdownProps) {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -61,7 +63,13 @@ export default function ProfileDropdown({ isOpen, onClose, userAvatar, userName,
             </div>
           </div>
           <div className="mt-3 space-y-1">
-            <button className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors flex items-center">
+            <button
+              onClick={() => {
+                onClose();
+                onSwitchAccount?.();
+              }}
+              className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors flex items-center"
+            >
               <User className="w-4 h-4 mr-2" />
               Hisoblarni almashtirish
             </button>
@@ -132,7 +140,13 @@ export default function ProfileDropdown({ isOpen, onClose, userAvatar, userName,
               <Keyboard className="w-4 h-4 mr-2" />
       Yorliqlar
             </button>
-            <button className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors flex items-center">
+            <button
+              onClick={() => {
+                onClose();
+                onLogout?.();
+              }}
+              className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors flex items-center"
+            >
               <LogOut className="w-4 h-4 mr-2" />
               Chiqish
             </button>
