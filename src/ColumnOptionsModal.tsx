@@ -88,16 +88,18 @@ export default function ColumnOptionsModal({
         {/* Options */}
         <div className="p-2">
           <div className="space-y-1">
-            <button
-              onClick={() => {
-                onEditColumn();
-                onClose();
-              }}
-              className="w-full flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors group"
-            >
-              <Edit className="w-4 h-4 mr-3 text-gray-400 group-hover:text-gray-600" />
-              <span>Ustun nomini o'zgartirish</span>
-            </button>
+            {!isStandard && (
+              <button
+                onClick={() => {
+                  onEditColumn();
+                  onClose();
+                }}
+                className="w-full flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors group"
+              >
+                <Edit className="w-4 h-4 mr-3 text-gray-400 group-hover:text-gray-600" />
+                <span>Ustun nomini o'zgartirish</span>
+              </button>
+            )}
             
             <button
               onClick={() => {
