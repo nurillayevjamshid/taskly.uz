@@ -8,7 +8,7 @@ import Cropper from 'react-easy-crop';
 import ProfileDropdown from './ProfileDropdown';
 import NotificationDropdown from './NotificationDropdown';
 import ColumnOptionsModal from './ColumnOptionsModal';
-import { useColumns, useTasks } from './hooks/useApi';
+import { useColumns, useTasks, useProjects, useAuth } from './hooks/useApi';
 import {
   LayoutDashboard,
   KanbanSquare,
@@ -613,12 +613,13 @@ function UserDropdown({ isOpen, onClose, position }: { isOpen: boolean; onClose:
 export default function App() {
   const { columns, setColumns, loading: columnsLoading, createColumn, updateColumn, deleteColumn } = useColumns();
   const { createTask, updateTask, deleteTask } = useTasks();
+  const { projects, createProject, deleteProject } = useProjects();
+  const { user } = useAuth();
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
   const [draggingColId, setDraggingColId] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeView, setActiveView] = useState<'dashboard' | 'board' | 'settings' | 'profile'>('dashboard');
   const [lang, setLang] = useState<Language>('uz');
-  const [boards, setBoards] = useState<string[]>(['productRoadmap', 'Marketing Campaign', 'Design System']);
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
   const [newProjectName, setNewProjectName] = useState('');
   const [addingCardToCol, setAddingCardToCol] = useState<string | null>(null);
@@ -785,12 +786,16 @@ export default function App() {
     }
   };
 
-  const handleAddProject = (e: React.FormEvent) => {
+  const handleAddProject = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newProjectName.trim()) {
-      setBoards([...boards, newProjectName.trim()]);
-      setNewProjectName('');
-      setIsProjectModalOpen(false);
+    if (newProjectName.trim() && user?.id) {
+      try {
+        await createProject(newProjectName.trim(), user.id);
+        setNewProjectName('');
+        setIsProjectModalOpen(false);
+      } catch (error) {
+        console.error('Failed to create project:', error);
+      }
     }
   };
 
@@ -1075,10 +1080,10 @@ export default function App() {
           <div>
             <p className="px-2 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">{t('yourBoards')}</p>
             <nav className="space-y-1">
-              {boards.map((board, i) => (
-                <a key={i} href="#" className="flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors group">
+              {projects.map((project, i) => (
+                <a key={project.id} href="#" className="flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors group">
                   <div className={`w-2 h-2 rounded-full mr-3 ${i % 3 === 0 ? 'bg-purple-500' : i % 3 === 1 ? 'bg-green-500' : 'bg-orange-500'}`}></div>
-                  {board === 'productRoadmap' ? t('productRoadmap') : board}
+                  {project.name}
                 </a>
               ))}
             </nav>

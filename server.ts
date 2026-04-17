@@ -35,6 +35,41 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Taskly API is running' });
 });
 
+// Projects CRUD
+app.get('/api/projects', async (req, res) => {
+  try {
+    const projects = await prisma.project.findMany({
+      orderBy: { createdAt: 'desc' }
+    });
+    res.json(projects);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch projects' });
+  }
+});
+
+app.post('/api/projects', async (req, res) => {
+  try {
+    const { name, userId } = req.body;
+    const project = await prisma.project.create({
+      data: { name, userId }
+    });
+    res.json(project);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to create project' });
+  }
+});
+
+app.delete('/api/projects/:id', async (req, res) => {
+  try {
+    await prisma.project.delete({
+      where: { id: req.params.id }
+    });
+    res.json({ message: 'Project deleted' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete project' });
+  }
+});
+
 // Auth endpoints
 app.post('/api/auth/register', async (req, res) => {
   try {

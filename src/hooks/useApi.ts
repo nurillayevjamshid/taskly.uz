@@ -265,6 +265,66 @@ export const useTasks = () => {
   return { tasks, loading, error, fetchTasks, createTask, updateTask, deleteTask };
 };
 
+type Project = {
+  id: string;
+  name: string;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export const useProjects = () => {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchProjects = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${API_BASE}/projects`);
+      const data = await response.json();
+      setProjects(data);
+      setError(null);
+    } catch (err) {
+      setError('Failed to fetch projects');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const createProject = async (name: string, userId: string) => {
+    try {
+      const response = await fetch(`${API_BASE}/projects`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, userId })
+      });
+      const newProject = await response.json();
+      setProjects([...projects, newProject]);
+      return newProject;
+    } catch (err) {
+      setError('Failed to create project');
+      throw err;
+    }
+  };
+
+  const deleteProject = async (id: string) => {
+    try {
+      await fetch(`${API_BASE}/projects/${id}`, { method: 'DELETE' });
+      setProjects(projects.filter(project => project.id !== id));
+    } catch (err) {
+      setError('Failed to delete project');
+      throw err;
+    }
+  };
+
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
+  return { projects, setProjects, loading, error, fetchProjects, createProject, deleteProject };
+};
+
 export const useComments = () => {
   const createComment = async (taskId: string, text: string, author: string) => {
     const response = await fetch(`${API_BASE}/tasks/${taskId}/comments`, {
