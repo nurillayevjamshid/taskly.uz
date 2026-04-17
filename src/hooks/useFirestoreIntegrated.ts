@@ -260,7 +260,7 @@ export const useIntegratedColumns = () => {
           await addDoc(collection(db, 'columns'), convertToFirestoreData(column));
         }
         
-        console.log('Standart columnlar yaratildi');
+        console.log('O\'zbekcha standart columnlar yaratildi:', defaultColumns.map(c => c.title));
       }
     } catch (err: any) {
       console.error('Standart columnlarni yaratishda xatolik:', err);
