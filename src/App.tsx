@@ -801,13 +801,17 @@ export default function App() {
     const newTask: Task = {
       id: `t${Date.now()}`,
       title: newCardText.trim(),
-      description: newCardDescription.trim(),
+      description: newCardDescription.trim() || null,
       tags: [],
-      startDate: newCardStartDate || undefined,
-      dueDate: newCardDate || '',
-      assignee: newCardAssignee || undefined,
+      startDate: newCardStartDate || null,
+      dueDate: newCardDate || null,
+      assignee: newCardAssignee || null,
       comments: [],
       attachments: newCardAttachments,
+      columnId: colId,
+      order: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     setColumns(prev => prev.map(col => {
@@ -837,7 +841,12 @@ export default function App() {
   const handleAddTag = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTagText.trim() || !selectedTask) return;
-    const newTag = { text: newTagText.trim(), color: newTagColor };
+    const newTag = { 
+      id: `tag${Date.now()}`,
+      text: newTagText.trim(), 
+      color: newTagColor,
+      createdAt: new Date().toISOString()
+    };
     handleUpdateTask({ ...selectedTask, tags: [...selectedTask.tags, newTag] });
     setNewTagText('');
     setIsAddingTag(false);
