@@ -670,11 +670,11 @@ function UserDropdown({ isOpen, onClose, position }: { isOpen: boolean; onClose:
         </div>
 
         {/* Users List */}
-        <div className="overflow-y-auto custom-scrollbar">
+        <div className="overflow-y-auto custom-scrollbar p-3 space-y-2">
           {users.map((user) => (
             <div 
               key={user.id}
-              className="flex items-center space-x-3 p-3 hover:bg-gray-50 transition-colors cursor-pointer group border-b border-gray-50 last:border-b-0"
+              className="flex items-center space-x-3 p-3 hover:bg-gray-50 transition-colors cursor-pointer group bg-white border border-gray-200 rounded-lg shadow-sm"
             >
               <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 text-white flex items-center justify-center font-semibold text-xs shadow-sm overflow-hidden flex-shrink-0">
                 <img 
