@@ -654,7 +654,16 @@ export default function App() {
     };
   }, []);
   const { projects, createProject, deleteProject } = useFirestoreProjects();
-  const { user } = useFirebaseAuth();
+  const { user, loading: authLoading } = useFirebaseAuth();
+  
+  // Auth tekshiruvi - login qilmagan bo'lsa kirish.html ga yo'naltirish
+  useEffect(() => {
+    if (!authLoading && !user) {
+      // Foydalanuvchi tizimga kirmagan - kirish sahifasiga yo'naltirish
+      window.location.href = '/kirish.html';
+    }
+  }, [user, authLoading]);
+  
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
   const [draggingColId, setDraggingColId] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
