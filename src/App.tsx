@@ -682,6 +682,14 @@ export default function App() {
   
   // Avatar and Crop state
   const [userAvatar, setUserAvatar] = useState<string | null>(null);
+  
+  // Firebase dan user avatar ni olish
+  useEffect(() => {
+    if (user?.avatar) {
+      setUserAvatar(user.avatar);
+    }
+  }, [user]);
+  
   const [isCropModalOpen, setIsCropModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
