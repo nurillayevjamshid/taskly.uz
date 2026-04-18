@@ -10,6 +10,7 @@ import ProfileDropdown from './ProfileDropdown';
 import NotificationDropdown from './NotificationDropdown';
 import ColumnOptionsModal from './ColumnOptionsModal';
 import FeedbackModal from './components/modals/FeedbackModal';
+import TaskModal from './components/modals/TaskModal';
 import UserDropdown from './components/common/UserDropdown';
 import { useIntegratedColumns } from './hooks/useFirestoreIntegrated';
 import { useFirestoreProjects } from './hooks/useFirestore';
@@ -1537,266 +1538,37 @@ export default function App() {
 
       {/* Task Details Modal */}
       {selectedTask && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh] transform transition-all">
-            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-              <div className="flex items-center flex-1 mr-4">
-                <input 
-                  type="text" 
-                  value={selectedTask.title} 
-                  onChange={(e) => handleUpdateTask({ ...selectedTask, title: e.target.value })}
-                  className="text-xl font-semibold text-gray-900 bg-transparent border-none focus:ring-2 focus:ring-blue-500 rounded px-2 py-1 w-full -ml-2"
-                />
-                {selectedTask.dueDate && isToday(new Date(selectedTask.dueDate)) && (
-                  <span className="ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 shrink-0">
-                    <span className="w-1.5 h-1.5 mr-1.5 bg-red-500 rounded-full animate-pulse"></span>
-                    {t('dueToday')}
-                  </span>
-                )}
-              </div>
-              <button onClick={() => setSelectedTask(null)} className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-1.5 rounded-lg transition-colors shrink-0">
-                 <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="p-6 overflow-y-auto custom-scrollbar">
-              <div className="mb-6">
-                <h4 className="text-sm font-medium text-gray-700 mb-2">{t('description')}</h4>
-                <textarea
-                  value={selectedTask.description}
-                  onChange={(e) => handleUpdateTask({ ...selectedTask, description: e.target.value })}
-                  placeholder={t('noDescription')}
-                  className="w-full text-gray-900 text-sm bg-gray-50 p-4 rounded-lg leading-relaxed border border-gray-200 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y min-h-[100px]"
-                />
-              </div>
-              <div className="flex flex-wrap gap-6 mb-6">
-                <div>
-                  <label htmlFor="editAssignee" className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">{t('assignee')}</label>
-                  <select
-                    id="editAssignee"
-                    value={selectedTask.assignee || ''}
-                    onChange={(e) => handleUpdateTask({ ...selectedTask, assignee: e.target.value })}
-                    className="text-sm font-medium text-gray-900 bg-gray-50 hover:bg-gray-100 border border-gray-200 px-3 py-2 rounded-lg transition-colors focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-full outline-none"
-                  >
-                    <option value="">{t('selectAssignee')}</option>
-                    {mockUsers.map(user => (
-                      <option key={user} value={user}>{user}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label htmlFor="editStartDate" className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">{t('startDate')}</label>
-                  <div className="flex items-center text-sm font-medium text-gray-900 bg-gray-50 hover:bg-gray-100 border border-gray-200 px-3 py-2 rounded-lg transition-colors focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 relative">
-                    <Calendar className="w-4 h-4 mr-2 text-gray-500 shrink-0 absolute left-3 z-10" />
-                    <DatePicker
-                      id="editStartDate"
-                      selected={selectedTask.startDate ? new Date(selectedTask.startDate) : null}
-                      onChange={(date) => handleUpdateTask({ ...selectedTask, startDate: date ? format(date, "yyyy-MM-dd'T'HH:mm") : '' })}
-                      showTimeInput
-                      timeInputLabel="Vaqt:"
-                      dateFormat="dd.MM.yyyy HH:mm"
-                      placeholderText="dd.mm.yyyy --:--"
-                      className="bg-transparent border-none focus:ring-0 p-0 pl-7 rounded text-sm text-gray-700 w-full outline-none"
-                      portalId="root"
-                      autoComplete="off"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label htmlFor="editEndDate" className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">{t('endDate')}</label>
-                  <div className="flex items-center text-sm font-medium text-gray-900 bg-gray-50 hover:bg-gray-100 border border-gray-200 px-3 py-2 rounded-lg transition-colors focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 relative">
-                    <Calendar className="w-4 h-4 mr-2 text-gray-500 shrink-0 absolute left-3 z-10" />
-                    <DatePicker
-                      id="editEndDate"
-                      selected={selectedTask.dueDate ? new Date(selectedTask.dueDate) : null}
-                      onChange={(date) => handleUpdateTask({ ...selectedTask, dueDate: date ? format(date, "yyyy-MM-dd'T'HH:mm") : '' })}
-                      showTimeInput
-                      timeInputLabel="Vaqt:"
-                      dateFormat="dd.MM.yyyy HH:mm"
-                      placeholderText="dd.mm.yyyy --:--"
-                      className="bg-transparent border-none focus:ring-0 p-0 pl-7 rounded text-sm text-gray-700 w-full outline-none"
-                      portalId="root"
-                      autoComplete="off"
-                    />
-                  </div>
-                </div>
-                <div className="flex-1 min-w-[200px]">
-                  <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">{t('tags')}</h4>
-                  <div className="flex flex-wrap gap-2 items-center">
-                    {selectedTask.tags.length > 0 ? selectedTask.tags.map((tag, i) => (
-                      <span key={i} className={`group flex items-center text-xs font-semibold px-2.5 py-1.5 rounded-md ${tag.color}`}>
-                        {tag.text}
-                        <button 
-                          onClick={() => handleRemoveTag(i)}
-                          className="ml-1.5 opacity-0 group-hover:opacity-100 hover:text-gray-900 transition-opacity"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </span>
-                    )) : <span className="text-sm text-gray-500 bg-gray-50 px-3 py-1.5 rounded-md">{t('noTags')}</span>}
-                    
-                    <div className="relative">
-                      <button 
-                        onClick={() => setIsAddingTag(!isAddingTag)}
-                        className="flex items-center justify-center w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 transition-colors"
-                      >
-                        <Plus className="w-4 h-4" />
-                      </button>
-                      
-                      {isAddingTag && (
-                        <div className="absolute top-full mt-2 left-0 w-64 bg-white rounded-xl shadow-lg border border-gray-200 p-4 z-10">
-                          <form onSubmit={handleAddTag}>
-                            <div className="mb-3">
-                              <label className="block text-xs font-medium text-gray-700 mb-1">{t('tagName')}</label>
-                              <input 
-                                type="text"
-                                autoFocus
-                                value={newTagText}
-                                onChange={(e) => setNewTagText(e.target.value)}
-                                className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="E.g. Frontend"
-                              />
-                            </div>
-                            <div className="mb-4">
-                              <label className="block text-xs font-medium text-gray-700 mb-2">{t('color')}</label>
-                              <div className="flex flex-wrap gap-2">
-                                {tagColors.map((color) => (
-                                  <button
-                                    key={color.value}
-                                    type="button"
-                                    onClick={() => setNewTagColor(color.value)}
-                                    className={`w-6 h-6 rounded-full ${color.bg} border-2 transition-all ${newTagColor === color.value ? 'border-gray-900 scale-110' : 'border-transparent hover:scale-110'}`}
-                                  />
-                                ))}
-                              </div>
-                            </div>
-                            <div className="flex justify-end space-x-2">
-                              <button
-                                type="button"
-                                onClick={() => setIsAddingTag(false)}
-                                className="px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
-                              >
-                                {t('cancel')}
-                              </button>
-                              <button
-                                type="submit"
-                                disabled={!newTagText.trim()}
-                                className="px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
-                              >
-                                {t('add')}
-                              </button>
-                            </div>
-                          </form>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="mb-6 pb-6 border-b border-gray-100">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-sm font-medium text-gray-700 flex items-center">
-                    <Paperclip className="w-4 h-4 mr-2 text-gray-400" />
-                    {t('attachments')}
-                    <span className="ml-2 bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs">
-                      {selectedTask.attachments}
-                    </span>
-                  </h4>
-                  <button 
-                    onClick={() => alert('File upload functionality will be implemented here.')}
-                    className="flex items-center px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-medium rounded-md transition-colors"
-                  >
-                    <Plus className="w-3.5 h-3.5 mr-1" />
-                    {t('addAttachment')}
-                  </button>
-                </div>
-                
-                {selectedTask.attachments > 0 ? (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {/* Placeholder for actual attachments */}
-                    {Array.from({ length: selectedTask.attachments }).map((_, idx) => (
-                      <div key={idx} className="flex items-center p-2 border border-gray-200 rounded-lg bg-gray-50 group cursor-pointer hover:bg-gray-100 transition-colors">
-                        <div className="w-10 h-10 rounded bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 mr-3">
-                          <Paperclip className="w-5 h-5" />
-                        </div>
-                        <div className="overflow-hidden">
-                          <p className="text-sm font-medium text-gray-900 truncate group-hover:text-blue-600 transition-colors">Document_{idx + 1}.pdf</p>
-                          <p className="text-xs text-gray-500">2.4 MB</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-6 bg-gray-50 border border-dashed border-gray-300 rounded-lg">
-                    <Paperclip className="w-8 h-8 mx-auto text-gray-400 mb-2" />
-                    <p className="text-sm text-gray-500">{t('noAttachments')}</p>
-                  </div>
-                )}
-              </div>
-
-              {/* Comments Section */}
-              <div className="mb-2">
-                <h4 className="text-sm font-medium text-gray-700 mb-4 flex items-center">
-                  <MessageSquare className="w-4 h-4 mr-2 text-gray-400" />
-                  {t('comments')}
-                  <span className="ml-2 bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs">
-                    {selectedTask.comments.length}
-                  </span>
-                </h4>
-                
-                <div className="space-y-4 mb-4">
-                  {selectedTask.comments.map(comment => (
-                    <div key={comment.id} className="flex space-x-3">
-                      <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0">
-                        {comment.author.charAt(0)}
-                      </div>
-                      <div className="flex-1 bg-gray-50 rounded-lg p-3">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-sm font-semibold text-gray-900">{comment.author}</span>
-                          <span className="text-xs text-gray-500">
-                            {new Date(comment.createdAt).toLocaleDateString()} {new Date(comment.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                          </span>
-                        </div>
-                        <p className="text-sm text-gray-700">{comment.text}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <form onSubmit={handleAddComment} className="flex items-start space-x-3 mt-4">
-                  <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm shrink-0">
-                    Y
-                  </div>
-                  <div className="flex-1">
-                    <textarea
-                      value={newCommentText}
-                      onChange={(e) => setNewCommentText(e.target.value)}
-                      placeholder={t('writeComment')}
-                      className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-y min-h-[80px]"
-                    />
-                    <div className="flex justify-end mt-2">
-                      <button
-                        type="submit"
-                        disabled={!newCommentText.trim()}
-                        className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
-                      >
-                        {t('post')}
-                      </button>
-                    </div>
-                  </div>
-                </form>
-              </div>
-            </div>
-            <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end">
-              <button 
-                onClick={() => setSelectedTask(null)} 
-                className="px-4 py-2 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors shadow-sm"
-              >
-                {t('close')}
-              </button>
-            </div>
-          </div>
-        </div>
+        <TaskModal
+          task={selectedTask}
+          onClose={() => setSelectedTask(null)}
+          onUpdate={(updatedTask) => {
+            updateTask(selectedTask.id, updatedTask);
+            setSelectedTask(updatedTask);
+          }}
+          onAddTag={(taskId, tag) => {
+            // Tag qo'shish logikasi
+          }}
+          onRemoveTag={(taskId, tagIndex) => {
+            // Tag o'chirish logikasi
+          }}
+          onAddComment={(taskId, text) => {
+            // Comment qo'shish logikasi
+          }}
+          translations={{
+            description: t('description'),
+            noDescription: t('noDescription'),
+            assignee: t('assignee'),
+            selectAssignee: t('selectAssignee'),
+            dueToday: t('dueToday'),
+            tags: t('tags'),
+            attachments: t('attachments'),
+            noAttachments: t('noAttachments'),
+            comments: t('comments'),
+            writeComment: t('writeComment'),
+            post: t('post'),
+            close: t('close')
+          }}
+        />
       )}
 
       {/* Add Task Modal */}
