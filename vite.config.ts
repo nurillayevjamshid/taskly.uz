@@ -18,7 +18,7 @@ export default defineConfig(({mode}) => {
       rollupOptions: {
         input: {
           main: path.resolve(__dirname, 'index.html'),
-          login: path.resolve(__dirname, 'login.html'),
+          kirish: path.resolve(__dirname, 'kirish.html'),
         },
       },
     },
