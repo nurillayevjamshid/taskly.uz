@@ -441,9 +441,7 @@ export default function App() {
   
   // Firebase dan user avatar ni olish
   useEffect(() => {
-    if (user?.avatar) {
-      setUserAvatar(user.avatar);
-    }
+    setUserAvatar(user?.avatar || null);
   }, [user]);
   
   const [isCropModalOpen, setIsCropModalOpen] = useState(false);
