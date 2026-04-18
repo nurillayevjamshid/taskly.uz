@@ -5,10 +5,19 @@
 [build.environment]
   NODE_VERSION = "18"
 
+# Mavjud fayllar (kirish.html) to'g'ridan-to'g'ri ochilsin
+[[redirects]]
+  from = "/kirish.html"
+  to = "/kirish.html"
+  status = 200
+  force = false
+
+# React Router uchun - faqat boshqa yo'nalishlar index.html ga
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+  force = false
 
 [[headers]]
   for = "/*"
