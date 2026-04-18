@@ -1156,7 +1156,7 @@ export default function App() {
               onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
               className="h-8 w-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 text-white flex items-center justify-center font-semibold text-sm shadow-sm cursor-pointer border border-white ring-2 ring-transparent hover:ring-gray-200 transition-all overflow-hidden"
             >
-              {userAvatar ? <img src={userAvatar} alt="User Avatar" className="w-full h-full object-cover" /> : 'JD'}
+              {userAvatar ? <img src={userAvatar} alt="User Avatar" className="w-full h-full object-cover" /> : (user?.name ? user.name.charAt(0).toUpperCase() : '?')}
             </div>
           </div>
           <button className="flex items-center w-full px-2 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50 transition-colors">
@@ -1215,7 +1215,7 @@ export default function App() {
               onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
               className="hidden md:block h-8 w-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 text-white flex items-center justify-center font-semibold text-sm shadow-sm cursor-pointer border border-white ring-2 ring-transparent hover:ring-gray-200 transition-all overflow-hidden"
             >
-              {userAvatar ? <img src={userAvatar} alt="User Avatar" className="w-full h-full object-cover" /> : 'JD'}
+              {userAvatar ? <img src={userAvatar} alt="User Avatar" className="w-full h-full object-cover" /> : (user?.name ? user.name.charAt(0).toUpperCase() : '?')}
             </div>
             
                       </div>
@@ -1234,11 +1234,11 @@ export default function App() {
                 <div className="p-6">
                   <div className="flex items-center space-x-6">
                     <div className="h-24 w-24 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 text-white flex items-center justify-center font-bold text-3xl shadow-sm overflow-hidden">
-                      {userAvatar ? <img src={userAvatar} alt="User Avatar" className="w-full h-full object-cover" /> : 'JD'}
+                      {userAvatar ? <img src={userAvatar} alt="User Avatar" className="w-full h-full object-cover" /> : (user?.name ? user.name.charAt(0).toUpperCase() : '?')}
                     </div>
                     <div>
-                      <h2 className="text-xl font-semibold text-gray-900">Jamshid Nurillayev</h2>
-                      <p className="text-gray-500">jamshid@example.com</p>
+                      <h2 className="text-xl font-semibold text-gray-900">{user?.name || 'Foydalanuvchi'}</h2>
+                      <p className="text-gray-500">{user?.email || ''}</p>
                       <button 
                         onClick={() => fileInputRef.current?.click()}
                         className="mt-3 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
@@ -1268,7 +1268,7 @@ export default function App() {
                 <div className="p-6 space-y-6">
                   <div className="flex items-center space-x-6">
                     <div className="h-20 w-20 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 text-white flex items-center justify-center font-bold text-2xl shadow-sm overflow-hidden">
-                      {userAvatar ? <img src={userAvatar} alt="User Avatar" className="w-full h-full object-cover" /> : 'JD'}
+                      {userAvatar ? <img src={userAvatar} alt="User Avatar" className="w-full h-full object-cover" /> : (user?.name ? user.name.charAt(0).toUpperCase() : '?')}
                     </div>
                     <input 
                       type="file" 
@@ -2385,9 +2385,9 @@ export default function App() {
       <ProfileDropdown
         isOpen={isProfileDropdownOpen}
         onClose={() => setIsProfileDropdownOpen(false)}
-        userAvatar={userAvatar}
-        userName="Jamshid Nurillayev"
-        userEmail="jamshid@example.com"
+        userAvatar={user?.avatar || userAvatar}
+        userName={user?.name || 'Foydalanuvchi'}
+        userEmail={user?.email || ''}
       />
       
       {/* Notification Dropdown */}
