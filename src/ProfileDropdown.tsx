@@ -61,7 +61,10 @@ export default function ProfileDropdown({ isOpen, onClose, userAvatar, userName,
             </div>
           </div>
           <div className="mt-3 space-y-1">
-            <button className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors flex items-center">
+            <button 
+              onClick={() => window.location.href = '/kirish.html'}
+              className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors flex items-center"
+            >
               <User className="w-4 h-4 mr-2" />
               Hisoblarni almashtirish
             </button>
