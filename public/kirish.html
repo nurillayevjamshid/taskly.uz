@@ -142,26 +142,6 @@
             height: 20px;
         }
 
-        .divider {
-            display: flex;
-            align-items: center;
-            margin: 24px 0;
-            color: #9ca3af;
-            font-size: 13px;
-        }
-
-        .divider::before,
-        .divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: #e5e7eb;
-        }
-
-        .divider span {
-            padding: 0 16px;
-        }
-
         .loading {
             display: none;
             text-align: center;
@@ -233,56 +213,6 @@
             color: #3b82f6;
         }
 
-        .user-info {
-            display: none;
-            text-align: center;
-            padding: 20px;
-        }
-
-        .user-info.active {
-            display: block;
-        }
-
-        .user-avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            margin: 0 auto 16px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .user-name {
-            font-size: 20px;
-            font-weight: 600;
-            color: #1f2937;
-            margin-bottom: 8px;
-        }
-
-        .user-email {
-            font-size: 14px;
-            color: #6b7280;
-            margin-bottom: 20px;
-        }
-
-        .continue-app-btn {
-            display: inline-block;
-            padding: 12px 24px;
-            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-        }
-
-        .continue-app-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
-        }
-
         @media (max-width: 480px) {
             .login-card {
                 margin: 20px;
@@ -318,23 +248,10 @@
                 Google bilan davom etish
             </button>
 
-            <div class="divider">
-                <span>yoki</span>
-            </div>
-
             <div class="loading" id="loading">
                 <div class="spinner"></div>
-                <p>Yuklanmoqda...</p>
+                <p>Ilovaga yo'naltirilmoqda...</p>
             </div>
-        </div>
-
-        <div class="user-info" id="user-info">
-            <img class="user-avatar" id="user-avatar" src="" alt="User Avatar">
-            <div class="user-name" id="user-name"></div>
-            <div class="user-email" id="user-email"></div>
-            <a href="https://tasklyuz.netlify.app" class="continue-app-btn">
-                Ilovaga o'tish →
-            </a>
         </div>
 
         <div class="back-link">
@@ -383,10 +300,6 @@
         const errorMessage = document.getElementById('error-message');
         const successMessage = document.getElementById('success-message');
         const loginSection = document.getElementById('login-section');
-        const userInfo = document.getElementById('user-info');
-        const userAvatar = document.getElementById('user-avatar');
-        const userName = document.getElementById('user-name');
-        const userEmail = document.getElementById('user-email');
 
         // Show error message
         function showError(message) {
@@ -406,13 +319,13 @@
         // Show loading
         function showLoading() {
             loadingDiv.classList.add('active');
-            googleSignInBtn.disabled = true;
+            googleSignInBtn.style.display = 'none';
         }
 
         // Hide loading
         function hideLoading() {
             loadingDiv.classList.remove('active');
-            googleSignInBtn.disabled = false;
+            googleSignInBtn.style.display = 'flex';
         }
 
         // Save user to Firestore
@@ -447,6 +360,17 @@
             }
         }
 
+        // Avtomatik asosiy ilovaga o'tish
+        function redirectToApp(user) {
+            console.log('Foydalanuvchi tizimga kirdi:', user.displayName);
+            console.log('Asosiy ilovaga yo\'naltirilmoqda...');
+            
+            // 2 sekund kutib, keyin asosiy ilovaga o'tish
+            setTimeout(() => {
+                window.location.href = 'https://tasklyuz.netlify.app';
+            }, 2000);
+        }
+
         // Google Sign In
         async function signInWithGoogle() {
             showLoading();
@@ -459,11 +383,11 @@
                 // Save to Firestore
                 await saveUserToFirestore(user);
 
-                // Show success
-                showSuccess('Muvaffaqiyatli kirdingiz!');
+                // Show success message
+                showSuccess('Muvaffaqiyatli kirdingiz! Ilovaga yo\'naltirilmoqda...');
 
-                // Display user info
-                displayUserInfo(user);
+                // Avtomatik asosiy ilovaga o'tish
+                redirectToApp(user);
 
             } catch (error) {
                 hideLoading();
@@ -492,27 +416,17 @@
             }
         }
 
-        // Display user info
-        function displayUserInfo(user) {
-            loginSection.style.display = 'none';
-            userInfo.classList.add('active');
-            
-            userAvatar.src = user.photoURL || 'https://via.placeholder.com/80';
-            userName.textContent = user.displayName || 'Foydalanuvchi';
-            userEmail.textContent = user.email;
-        }
-
         // Check auth state
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // User is signed in
-                console.log('Foydalanuvchi kirilgan:', user.displayName);
-                displayUserInfo(user);
+                // User is signed in - avtomatik asosiy ilovaga o'tish
+                console.log('Foydalanuvchi avvaldan kirilgan:', user.displayName);
+                showLoading();
+                showSuccess('Avvaldan tizimga kirilgan. Ilovaga yo\'naltirilmoqda...');
+                redirectToApp(user);
             } else {
                 // User is signed out
-                console.log('Foydalanuvchi chiqilgan');
-                loginSection.style.display = 'block';
-                userInfo.classList.remove('active');
+                console.log('Foydalanuvchi tizimga kirmagan');
                 hideLoading();
             }
         });
@@ -520,7 +434,6 @@
         // Event listener
         googleSignInBtn.addEventListener('click', signInWithGoogle);
 
-        // Check if already logged in on page load
         console.log('Firebase Auth yuklandi');
     </script>
 </body>
