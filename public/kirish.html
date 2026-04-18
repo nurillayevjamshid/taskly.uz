@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taskly - Kirish</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Stars background */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, white, transparent),
+                radial-gradient(2px 2px at 40px 70px, white, transparent),
+                radial-gradient(1px 1px at 50px 90px, white, transparent),
+                radial-gradient(2px 2px at 130px 80px, white, transparent),
+                radial-gradient(1px 1px at 160px 120px, white, transparent),
+                radial-gradient(2px 2px at 200px 50px, white, transparent),
+                radial-gradient(1px 1px at 230px 100px, white, transparent),
+                radial-gradient(2px 2px at 300px 150px, white, transparent),
+                radial-gradient(1px 1px at 350px 60px, white, transparent),
+                radial-gradient(2px 2px at 400px 90px, white, transparent),
+                radial-gradient(1px 1px at 450px 130px, white, transparent),
+                radial-gradient(2px 2px at 500px 40px, white, transparent);
+            background-size: 550px 200px;
+            animation: twinkle 5s ease-in-out infinite;
+            opacity: 0.8;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 10;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .logo svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 28px;
+        }
+
+        .google-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            padding: 12px 16px;
+            background: #ffffff;
+            color: #374151;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 12px;
+        }
+
+        .google-btn:hover {
+            background: #f9fafb;
+            border-color: #d1d5db;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .google-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .google-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        .switch-account-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 10px 16px;
+            background: transparent;
+            color: #6b7280;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 16px;
+        }
+
+        .switch-account-btn:hover {
+            background: #f9fafb;
+            color: #374151;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #e5e7eb;
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            display: none;
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 16px;
+            border: 1px solid #fecaca;
+        }
+
+        .error-message.active {
+            display: block;
+        }
+
+        .success-message {
+            display: none;
+            background: #f0fdf4;
+            color: #16a34a;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 16px;
+            border: 1px solid #bbf7d0;
+        }
+
+        .success-message.active {
+            display: block;
+        }
+
+        .current-user {
+            display: none;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .current-user.active {
+            display: block;
+        }
+
+        .current-user-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .current-user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .current-user-info {
+            flex: 1;
+        }
+
+        .current-user-name {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 14px;
+        }
+
+        .current-user-email {
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            color: #9ca3af;
+            font-size: 13px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e5e7eb;
+        }
+
+        .divider span {
+            padding: 0 16px;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back-link a {
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .back-link a:hover {
+            color: #3b82f6;
+        }
+
+        @media (max-width: 480px) {
+            .login-card {
+                margin: 20px;
+                padding: 32px 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="9" y1="9" x2="15" y2="9"></line>
+                <line x1="9" y1="15" x2="15" y2="15"></line>
+            </svg>
+        </div>
+
+        <h1>Xush kelibsiz</h1>
+        <p class="subtitle">Davom etish uchun hisobingizga kiring</p>
+
+        <div class="error-message" id="error-message"></div>
+        <div class="success-message" id="success-message"></div>
+
+        <!-- Current User Info (if already logged in) -->
+        <div class="current-user" id="current-user">
+            <div class="current-user-header">
+                <img class="current-user-avatar" id="current-user-avatar" src="" alt="Avatar">
+                <div class="current-user-info">
+                    <div class="current-user-name" id="current-user-name"></div>
+                    <div class="current-user-email" id="current-user-email"></div>
+                </div>
+            </div>
+            <button class="google-btn" id="continue-btn" style="margin-bottom: 0;">
+                Davom etish
+            </button>
+        </div>
+
+        <!-- Login Section -->
+        <div id="login-section">
+            <button class="google-btn" id="google-signin-btn">
+                <svg class="google-icon" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Google bilan davom etish
+            </button>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Ilovaga yo'naltirilmoqda...</p>
+            </div>
+        </div>
+
+        <!-- Switch Account Section (shown when already logged in) -->
+        <div id="switch-account-section" style="display: none;">
+            <div class="divider">
+                <span>yoki</span>
+            </div>
+            <button class="switch-account-btn" id="switch-account-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                </svg>
+                Boshqa hisob bilan kirish
+            </button>
+        </div>
+
+        <div class="back-link">
+            <a href="https://tasklyuz.netlify.app">← Asosiy sahifaga qaytish</a>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import { 
+            getAuth, 
+            GoogleAuthProvider, 
+            signInWithPopup,
+            signOut,
+            onAuthStateChanged
+        } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+        import { 
+            getFirestore, 
+            doc, 
+            setDoc, 
+            getDoc,
+            serverTimestamp 
+        } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyClx1nTp_t-LGeJpsgj2bEWGvL-oIbGb5E",
+            authDomain: "taskly-de0b5.firebaseapp.com",
+            projectId: "taskly-de0b5",
+            storageBucket: "taskly-de0b5.firebasestorage.app",
+            messagingSenderId: "816744541754",
+            appId: "1:816744541754:web:298152bd4a2630f3618f03"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Google Provider
+        const googleProvider = new GoogleAuthProvider();
+
+        // UI Elements
+        const googleSignInBtn = document.getElementById('google-signin-btn');
+        const continueBtn = document.getElementById('continue-btn');
+        const switchAccountBtn = document.getElementById('switch-account-btn');
+        const loadingDiv = document.getElementById('loading');
+        const errorMessage = document.getElementById('error-message');
+        const successMessage = document.getElementById('success-message');
+        const loginSection = document.getElementById('login-section');
+        const currentUserDiv = document.getElementById('current-user');
+        const switchAccountSection = document.getElementById('switch-account-section');
+        const currentUserAvatar = document.getElementById('current-user-avatar');
+        const currentUserName = document.getElementById('current-user-name');
+        const currentUserEmail = document.getElementById('current-user-email');
+
+        // Show error message
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('active');
+            setTimeout(() => {
+                errorMessage.classList.remove('active');
+            }, 5000);
+        }
+
+        // Show success message
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            successMessage.classList.add('active');
+        }
+
+        // Show loading
+        function showLoading() {
+            loadingDiv.classList.add('active');
+            googleSignInBtn.style.display = 'none';
+        }
+
+        // Hide loading
+        function hideLoading() {
+            loadingDiv.classList.remove('active');
+            googleSignInBtn.style.display = 'flex';
+        }
+
+        // Save user to Firestore
+        async function saveUserToFirestore(user) {
+            try {
+                const userRef = doc(db, 'users', user.uid);
+                const userSnap = await getDoc(userRef);
+                
+                if (!userSnap.exists()) {
+                    await setDoc(userRef, {
+                        uid: user.uid,
+                        displayName: user.displayName,
+                        email: user.email,
+                        photoURL: user.photoURL,
+                        provider: 'google',
+                        createdAt: serverTimestamp(),
+                        lastLoginAt: serverTimestamp()
+                    });
+                } else {
+                    await setDoc(userRef, {
+                        lastLoginAt: serverTimestamp()
+                    }, { merge: true });
+                }
+            } catch (error) {
+                console.error('Firestore xatolik:', error);
+            }
+        }
+
+        // Display current user info
+        function showCurrentUser(user) {
+            currentUserAvatar.src = user.photoURL || 'https://via.placeholder.com/40';
+            currentUserName.textContent = user.displayName || 'Foydalanuvchi';
+            currentUserEmail.textContent = user.email;
+            
+            currentUserDiv.classList.add('active');
+            loginSection.style.display = 'none';
+            switchAccountSection.style.display = 'block';
+        }
+
+        // Show login form
+        function showLoginForm() {
+            currentUserDiv.classList.remove('active');
+            loginSection.style.display = 'block';
+            switchAccountSection.style.display = 'none';
+        }
+
+        // Redirect to main app
+        function redirectToApp() {
+            window.location.href = 'https://tasklyuz.netlify.app';
+        }
+
+        // Google Sign In
+        async function signInWithGoogle() {
+            showLoading();
+            errorMessage.classList.remove('active');
+
+            try {
+                const result = await signInWithPopup(auth, googleProvider);
+                const user = result.user;
+
+                await saveUserToFirestore(user);
+                showSuccess('Muvaffaqiyatli kirdingz! Ilovaga yo\'naltirilmoqda...');
+                
+                setTimeout(redirectToApp, 1500);
+            } catch (error) {
+                hideLoading();
+                console.error('Kirish xatolik:', error);
+
+                let errorMsg = 'Kirishda xatolik yuz berdi.';
+                switch (error.code) {
+                    case 'auth/popup-closed-by-user':
+                        errorMsg = 'Oyna yopildi. Qayta urining.';
+                        break;
+                    case 'auth/popup-blocked':
+                        errorMsg = 'Popup bloklandi.';
+                        break;
+                    case 'auth/network-request-failed':
+                        errorMsg = 'Internet aloqasi yo\'q.';
+                        break;
+                }
+                showError(errorMsg);
+            }
+        }
+
+        // Switch account (logout and show login)
+        async function switchAccount() {
+            try {
+                await signOut(auth);
+                showLoginForm();
+                showSuccess('Hisobdan chiqildi. Yangi hisob bilan kiring.');
+            } catch (error) {
+                console.error('Chiqish xatolik:', error);
+                showError('Hisobdan chiqishda xatolik.');
+            }
+        }
+
+        // Event listeners
+        googleSignInBtn.addEventListener('click', signInWithGoogle);
+        continueBtn.addEventListener('click', redirectToApp);
+        switchAccountBtn.addEventListener('click', switchAccount);
+
+        // Check auth state
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is signed in - show current user info
+                console.log('Foydalanuvchi kirilgan:', user.displayName);
+                showCurrentUser(user);
+            } else {
+                // User is signed out - show login form
+                console.log('Foydalanuvchi tizimga kirmagan');
+                showLoginForm();
+            }
+        });
+
+        console.log('Firebase Auth yuklandi');
+    </script>
+</body>
+</html>

@@ -10,8 +10,32 @@ import {
   ChevronRight,
   Plus,
   Keyboard,
-  Bell
+  Bell,
+  CheckCircle
 } from 'lucide-react';
+import { signOut } from 'firebase/auth';
+import { auth } from './firebase';
+
+// Toast komponenti
+const Toast = ({ message, isVisible, onClose }: { message: string; isVisible: boolean; onClose: () => void }) => {
+  useEffect(() => {
+    if (isVisible) {
+      const timer = setTimeout(() => {
+        onClose();
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [isVisible, onClose]);
+
+  if (!isVisible) return null;
+
+  return (
+    <div className="fixed top-4 right-4 z-[60] bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-slide-in">
+      <CheckCircle className="w-5 h-5 text-green-600" />
+      <span className="font-medium">{message}</span>
+    </div>
+  );
+};
 
 interface ProfileDropdownProps {
   isOpen: boolean;
@@ -23,6 +47,59 @@ interface ProfileDropdownProps {
 
 export default function ProfileDropdown({ isOpen, onClose, userAvatar, userName, userEmail }: ProfileDropdownProps) {
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+
+  // Logout funksiyasi
+  const handleLogout = async () => {
+    // Tasdiqlash dialogi
+    const confirmed = window.confirm('Tizimdan chiqmoqchimisiz? Barcha saqlangan vazifalar xavfsiz.');
+    
+    if (!confirmed) {
+      return; // Foydalanuvchi bekor qildi
+    }
+
+    try {
+      // 1. localStorage dan faqat auth ma'lumotlarini o'chirish (vazifalarni emas)
+      const keysToRemove = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && (
+          key.includes('auth') || 
+          key.includes('user') || 
+          key.includes('token') || 
+          key.includes('session') ||
+          key.includes('firebase') ||
+          key.includes('credential')
+        )) {
+          keysToRemove.push(key);
+        }
+      }
+      keysToRemove.forEach(key => localStorage.removeItem(key));
+
+      // 2. sessionStorage ni to'liq tozalash
+      sessionStorage.clear();
+
+      // 3. Firebase dan chiqish
+      await signOut(auth);
+
+      // 4. Toast xabari ko'rsatish
+      setToastMessage('Siz tizimdan chiqdingiz');
+      setShowToast(true);
+
+      // 5. Modal yopish
+      onClose();
+
+      // 6. 1.5 sekund kutib kirish.html ga o'tish
+      setTimeout(() => {
+        window.location.href = '/kirish.html';
+      }, 1500);
+
+    } catch (error) {
+      console.error('Logout xatolik:', error);
+      alert('Chiqishda xatolik yuz berdi. Qayta urining.');
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -53,7 +130,7 @@ export default function ProfileDropdown({ isOpen, onClose, userAvatar, userName,
         <div className="p-4 border-b border-gray-100">
           <div className="flex items-center space-x-3">
             <div className="h-12 w-12 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 text-white flex items-center justify-center font-semibold text-sm shadow-sm overflow-hidden">
-              {userAvatar ? <img src={userAvatar} alt="User Avatar" className="w-full h-full object-cover" /> : 'JD'}
+              {userAvatar ? <img src={userAvatar} alt="User Avatar" className="w-full h-full object-cover" /> : (userName ? userName.charAt(0).toUpperCase() : 'U')}
             </div>
             <div className="flex-1">
               <h3 className="font-semibold text-gray-900">{userName}</h3>
@@ -61,7 +138,10 @@ export default function ProfileDropdown({ isOpen, onClose, userAvatar, userName,
             </div>
           </div>
           <div className="mt-3 space-y-1">
-            <button className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors flex items-center">
+            <button 
+              onClick={() => window.location.href = '/kirish.html'}
+              className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors flex items-center"
+            >
               <User className="w-4 h-4 mr-2" />
               Hisoblarni almashtirish
             </button>
@@ -130,15 +210,25 @@ export default function ProfileDropdown({ isOpen, onClose, userAvatar, userName,
             </button>
             <button className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors flex items-center">
               <Keyboard className="w-4 h-4 mr-2" />
-      Yorliqlar
+              Yorliqlar
             </button>
-            <button className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors flex items-center">
+            <button 
+              onClick={handleLogout}
+              className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors flex items-center"
+            >
               <LogOut className="w-4 h-4 mr-2" />
               Chiqish
             </button>
           </div>
         </div>
       </div>
+      
+      {/* Toast xabari */}
+      <Toast 
+        message={toastMessage} 
+        isVisible={showToast} 
+        onClose={() => setShowToast(false)} 
+      />
     </div>
   );
 }

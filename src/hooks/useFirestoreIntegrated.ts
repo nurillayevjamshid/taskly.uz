@@ -106,8 +106,10 @@ export const useIntegratedColumns = () => {
     return () => columnsUnsubscribe();
   }, []);
 
-  // Tasks listener - alohida
+  // Tasks listener - columns yuklangandan keyin ishlashi kerak
   useEffect(() => {
+    if (columns.length === 0) return; // Columns bo'sh bo'lsa ishlamaydi
+    
     const tasksQuery = query(collection(db, 'tasks'), orderBy('createdAt'));
     const tasksUnsubscribe = onSnapshot(
       tasksQuery,
@@ -132,7 +134,7 @@ export const useIntegratedColumns = () => {
     );
 
     return () => tasksUnsubscribe();
-  }, []);
+  }, [columns.length]); // Columns uzunligiga qarab ishlaydi
 
   const createColumn = async (title: string, color?: string, order?: number) => {
     try {
@@ -258,7 +260,7 @@ export const useIntegratedColumns = () => {
           await addDoc(collection(db, 'columns'), convertToFirestoreData(column));
         }
         
-        console.log('Standart columnlar yaratildi');
+        console.log('O\'zbekcha standart columnlar yaratildi:', defaultColumns.map(c => c.title));
       }
     } catch (err: any) {
       console.error('Standart columnlarni yaratishda xatolik:', err);
