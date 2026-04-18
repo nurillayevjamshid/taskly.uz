@@ -390,8 +390,30 @@ export default function App() {
     };
   }, []);
   const { projects, createProject, deleteProject } = useFirestoreProjects();
-  const { user, loading: authLoading } = useFirebaseAuth();
-  
+  const { user, loading: authLoading, updateUserProfile } = useFirebaseAuth();
+
+  const [profileName, setProfileName] = useState('');
+  const [profileLastName, setProfileLastName] = useState('');
+
+  useEffect(() => {
+    if (user) {
+      const parts = (user.name || '').split(' ');
+      setProfileName(parts[0] || '');
+      setProfileLastName(parts.slice(1).join(' ') || '');
+    }
+  }, [user]);
+
+  const handleSaveProfile = async () => {
+    try {
+      const fullName = `${profileName} ${profileLastName}`.trim();
+      await updateUserProfile({ name: fullName });
+      // Optional UI notification handled dynamically
+    } catch (e: any) {
+      console.error(e);
+      alert('Profilni saqlashda xatolik: ' + e.message);
+    }
+  };
+
   // Auth tekshiruvi - login qilmagan bo'lsa kirish.html ga yo'naltirish
   useEffect(() => {
     if (!authLoading && !user) {
@@ -598,6 +620,11 @@ export default function App() {
       const croppedImage = await getCroppedImg(selectedImage!, croppedAreaPixels);
       if (croppedImage) {
         setUserAvatar(croppedImage);
+        try {
+          await updateUserProfile({ avatar: croppedImage });
+        } catch(err) {
+          console.error("Avatar saqlanmadi:", err);
+        }
         setIsCropModalOpen(false);
       }
     } catch (e) {
@@ -1058,19 +1085,19 @@ export default function App() {
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">{t('firstName')}</label>
-                      <input type="text" defaultValue="John" className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
+                      <input type="text" value={profileName} onChange={e => setProfileName(e.target.value)} className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">{t('lastName')}</label>
-                      <input type="text" defaultValue="Doe" className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
+                      <input type="text" value={profileLastName} onChange={e => setProfileLastName(e.target.value)} className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
                     </div>
                     <div className="sm:col-span-2">
                       <label className="block text-sm font-medium text-gray-700 mb-1">{t('email')}</label>
-                      <input type="email" defaultValue="john.doe@example.com" className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
+                      <input type="email" value={user?.email || ''} readOnly className="block w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 sm:text-sm opacity-70" />
                     </div>
                   </div>
                   <div className="flex justify-end">
-                    <button className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
+                    <button onClick={handleSaveProfile} className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
                       {t('saveChanges')}
                     </button>
                   </div>
