@@ -60,20 +60,55 @@ type Column = {
 // Firestore ga saqlash uchun data konvertatsiya qilish
 const convertToFirestoreData = (data: any) => {
   const result = { ...data };
-  if (result.startDate) result.startDate = Timestamp.fromDate(new Date(result.startDate));
-  if (result.dueDate) result.dueDate = Timestamp.fromDate(new Date(result.dueDate));
-  if (result.createdAt) result.createdAt = Timestamp.fromDate(new Date(result.createdAt));
-  if (result.updatedAt) result.updatedAt = Timestamp.fromDate(new Date(result.updatedAt));
+  
+  const safelyConvertToTimestamp = (val: any) => {
+    if (!val) return null;
+    if (val instanceof Timestamp) return val;
+    if (val instanceof Date) return Timestamp.fromDate(val);
+    if (typeof val === 'string' || typeof val === 'number') {
+      const date = new Date(val);
+      // Check if valid date
+      if (!isNaN(date.getTime())) {
+        return Timestamp.fromDate(date);
+      }
+    }
+    return val;
+  };
+
+  if (result.startDate !== undefined) result.startDate = safelyConvertToTimestamp(result.startDate);
+  if (result.dueDate !== undefined) result.dueDate = safelyConvertToTimestamp(result.dueDate);
+  if (result.createdAt !== undefined) result.createdAt = safelyConvertToTimestamp(result.createdAt);
+  if (result.updatedAt !== undefined) result.updatedAt = safelyConvertToTimestamp(result.updatedAt);
+  
   return result;
 };
 
-// Firestore dan olingan datani qayta konvertatsiya qilish
+// Firestore dan olingan datani qayta konvertatsiya qilish (xavfsiz holda)
 const convertFromFirestoreData = (data: any) => {
   const result = { ...data };
-  if (result.startDate) result.startDate = result.startDate.toDate().toISOString();
-  if (result.dueDate) result.dueDate = result.dueDate.toDate().toISOString();
-  if (result.createdAt) result.createdAt = result.createdAt.toDate().toISOString();
-  if (result.updatedAt) result.updatedAt = result.updatedAt.toDate().toISOString();
+  
+  const safelyConvertToString = (val: any) => {
+    if (!val) return null;
+    // Agar Firestore Timestamp obyekti bo'lsa
+    if (typeof val?.toDate === 'function') {
+      return val.toDate().toISOString();
+    }
+    // Agar sek/nano-sek formatda yovvoyi kelib qolsa
+    if (val.seconds && val.nanoseconds !== undefined) {
+      return new Date(val.seconds * 1000).toISOString();
+    }
+    // Agar tayyor Date obyekti bo'lsa
+    if (val instanceof Date) return val.toISOString();
+    
+    // Agar stringning o'zi bo'lsa
+    return val;
+  };
+
+  if (result.startDate !== undefined) result.startDate = safelyConvertToString(result.startDate);
+  if (result.dueDate !== undefined) result.dueDate = safelyConvertToString(result.dueDate);
+  if (result.createdAt !== undefined) result.createdAt = safelyConvertToString(result.createdAt);
+  if (result.updatedAt !== undefined) result.updatedAt = safelyConvertToString(result.updatedAt);
+  
   return result;
 };
 
