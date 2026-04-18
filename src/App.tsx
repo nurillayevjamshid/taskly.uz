@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { format, isToday } from 'date-fns';
@@ -8,6 +9,8 @@ import Cropper from 'react-easy-crop';
 import ProfileDropdown from './ProfileDropdown';
 import NotificationDropdown from './NotificationDropdown';
 import ColumnOptionsModal from './ColumnOptionsModal';
+import FeedbackModal from './components/modals/FeedbackModal';
+import UserDropdown from './components/common/UserDropdown';
 import { useIntegratedColumns } from './hooks/useFirestoreIntegrated';
 import { useFirestoreProjects } from './hooks/useFirestore';
 import { useFirebaseAuth } from './hooks/useFirebaseAuth';
@@ -345,58 +348,6 @@ const translations = {
 };
 
 type Language = keyof typeof translations;
-
-// Feedback Modal Component
-function FeedbackModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-  const modalRef = useRef<HTMLDivElement>(null);
-  const [feedbackType, setFeedbackType] = useState<'suggestion' | 'complaint' | 'request'>('suggestion');
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [email, setEmail] = useState('');
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
-        onClose();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isOpen, onClose]);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Here you would normally send the data to your backend
-    console.log('Feedback submitted:', { feedbackType, title, description, email });
-    
-    // Reset form and close modal
-    setTitle('');
-    setDescription('');
-    setEmail('');
-    setFeedbackType('suggestion');
-    onClose();
-  };
-
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity">
-      <div 
-        ref={modalRef}
-        className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden transform transition-all"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-900">
-            Takliflar va shikoyatlar
-          </h3>
           <button 
             onClick={onClose}
             className="p-1 hover:bg-gray-100 rounded-md transition-colors"
@@ -519,101 +470,6 @@ function FeedbackModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
 }
 
 
-
-// User Dropdown Component
-function UserDropdown({ isOpen, onClose, position }: { isOpen: boolean; onClose: () => void; position: { x: number; y: number } | null }) {
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        onClose();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isOpen, onClose]);
-
-  const users = [
-    { id: 1, name: 'Jane Smith', avatar: 'https://i.pravatar.cc/100?img=1', initials: 'JS' },
-    { id: 2, name: 'Mike Johnson', avatar: 'https://i.pravatar.cc/100?img=2', initials: 'MJ' },
-    { id: 3, name: 'John Doe', avatar: 'https://i.pravatar.cc/100?img=3', initials: 'JD' },
-    { id: 4, name: 'Sarah Wilson', avatar: 'https://i.pravatar.cc/100?img=4', initials: 'SW' },
-    { id: 5, name: 'Alex Brown', avatar: 'https://i.pravatar.cc/100?img=5', initials: 'AB' }
-  ];
-
-  if (!isOpen || !position) return null;
-
-  return (
-    <div 
-      className="fixed z-50 left-4 right-4 sm:left-auto sm:right-auto mx-auto sm:mx-0 user-dropdown-wrapper"
-      style={{ 
-        left: `${position.x}px`, 
-        top: `${position.y}px`,
-        transform: 'translateX(-50%)'
-      }}
-    >
-      <div 
-        ref={dropdownRef}
-        className="bg-white rounded-xl shadow-xl border border-gray-200 w-full max-w-[calc(100vw-2rem)] sm:w-80 max-h-96 overflow-hidden transform transition-all"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-gray-900">
-            Loyihada ishtirokchilar
-          </h3>
-          <button 
-            onClick={onClose}
-            className="p-1 hover:bg-gray-100 rounded-md transition-colors"
-          >
-            <X className="w-3 h-3 text-gray-500" />
-          </button>
-        </div>
-
-        {/* Users List */}
-        <div className="overflow-y-auto custom-scrollbar p-3 space-y-2">
-          {users.map((user) => (
-            <div 
-              key={user.id}
-              className="flex items-center space-x-3 p-3 hover:bg-gray-50 transition-colors cursor-pointer group bg-white border border-gray-200 rounded-lg shadow-sm"
-            >
-              <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 text-white flex items-center justify-center font-semibold text-xs shadow-sm overflow-hidden flex-shrink-0">
-                <img 
-                  src={user.avatar} 
-                  alt={user.name} 
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                  }}
-                />
-                <div className="hidden w-full h-full flex items-center justify-center">
-                  {user.initials}
-                </div>
-              </div>
-              <div className="flex-1 min-w-0">
-                <h4 className="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors truncate">
-                  {user.name}
-                </h4>
-                <p className="text-xs text-gray-500 truncate">
-                  {user.name.toLowerCase().replace(' ', '.')}@taskly.uz
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function App() {
   const { columns, setColumns, loading: columnsLoading, createColumn, updateColumn, deleteColumn, createTask, updateTask, deleteTask, createDefaultColumnsIfNeeded, updateColumnColor } = useIntegratedColumns();
   // createTask, updateTask, deleteTask endi useIntegratedColumns dan keladi
@@ -667,7 +523,27 @@ export default function App() {
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
   const [draggingColId, setDraggingColId] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [activeView, setActiveView] = useState<'dashboard' | 'board' | 'settings' | 'profile'>('dashboard');
+  
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const getActiveView = () => {
+    if (location.pathname.startsWith('/projects')) return 'board';
+    if (location.pathname.startsWith('/settings')) return 'settings';
+    if (location.pathname.startsWith('/profile')) return 'profile';
+    return 'dashboard';
+  };
+  const activeView = getActiveView();
+
+  const setActiveView = (view: 'dashboard' | 'board' | 'settings' | 'profile') => {
+    if (view === 'dashboard') navigate('/');
+    else if (view === 'board') navigate('/projects/current/tasks');
+    else navigate(`/${view}`);
+  };
+  
+  const projectIdMatch = location.pathname.match(/\/projects\/([^/]+)/);
+  const projectIdFromUrl = projectIdMatch ? projectIdMatch[1] : null;
+
   const [lang, setLang] = useState<Language>('uz');
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
   const [newProjectName, setNewProjectName] = useState('');

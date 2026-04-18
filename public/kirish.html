@@ -49,11 +49,6 @@
             opacity: 0.8;
         }
 
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 1; }
-        }
-
         .login-card {
             background: white;
             border-radius: 20px;
@@ -121,7 +116,7 @@
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
 
         .google-btn:hover {
@@ -140,6 +135,29 @@
         .google-icon {
             width: 20px;
             height: 20px;
+        }
+
+        .switch-account-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 10px 16px;
+            background: transparent;
+            color: #6b7280;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 16px;
+        }
+
+        .switch-account-btn:hover {
+            background: #f9fafb;
+            color: #374151;
         }
 
         .loading {
@@ -196,6 +214,68 @@
             display: block;
         }
 
+        .current-user {
+            display: none;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .current-user.active {
+            display: block;
+        }
+
+        .current-user-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .current-user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .current-user-info {
+            flex: 1;
+        }
+
+        .current-user-name {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 14px;
+        }
+
+        .current-user-email {
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            color: #9ca3af;
+            font-size: 13px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e5e7eb;
+        }
+
+        .divider span {
+            padding: 0 16px;
+        }
+
         .back-link {
             text-align: center;
             margin-top: 20px;
@@ -223,21 +303,36 @@
 </head>
 <body>
     <div class="login-card">
-        <div id="login-section">
-            <div class="logo">
-                <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                    <line x1="9" y1="9" x2="15" y2="9"></line>
-                    <line x1="9" y1="15" x2="15" y2="15"></line>
-                </svg>
+        <div class="logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="9" y1="9" x2="15" y2="9"></line>
+                <line x1="9" y1="15" x2="15" y2="15"></line>
+            </svg>
+        </div>
+
+        <h1>Xush kelibsiz</h1>
+        <p class="subtitle">Davom etish uchun hisobingizga kiring</p>
+
+        <div class="error-message" id="error-message"></div>
+        <div class="success-message" id="success-message"></div>
+
+        <!-- Current User Info (if already logged in) -->
+        <div class="current-user" id="current-user">
+            <div class="current-user-header">
+                <img class="current-user-avatar" id="current-user-avatar" src="" alt="Avatar">
+                <div class="current-user-info">
+                    <div class="current-user-name" id="current-user-name"></div>
+                    <div class="current-user-email" id="current-user-email"></div>
+                </div>
             </div>
+            <button class="google-btn" id="continue-btn" style="margin-bottom: 0;">
+                Davom etish
+            </button>
+        </div>
 
-            <h1>Xush kelibsiz</h1>
-            <p class="subtitle">Davom etish uchun hisobingizga kiring</p>
-
-            <div class="error-message" id="error-message"></div>
-            <div class="success-message" id="success-message"></div>
-
+        <!-- Login Section -->
+        <div id="login-section">
             <button class="google-btn" id="google-signin-btn">
                 <svg class="google-icon" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -254,6 +349,19 @@
             </div>
         </div>
 
+        <!-- Switch Account Section (shown when already logged in) -->
+        <div id="switch-account-section" style="display: none;">
+            <div class="divider">
+                <span>yoki</span>
+            </div>
+            <button class="switch-account-btn" id="switch-account-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                </svg>
+                Boshqa hisob bilan kirish
+            </button>
+        </div>
+
         <div class="back-link">
             <a href="https://tasklyuz.netlify.app">← Asosiy sahifaga qaytish</a>
         </div>
@@ -266,6 +374,7 @@
             getAuth, 
             GoogleAuthProvider, 
             signInWithPopup,
+            signOut,
             onAuthStateChanged
         } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
         import { 
@@ -296,10 +405,17 @@
 
         // UI Elements
         const googleSignInBtn = document.getElementById('google-signin-btn');
+        const continueBtn = document.getElementById('continue-btn');
+        const switchAccountBtn = document.getElementById('switch-account-btn');
         const loadingDiv = document.getElementById('loading');
         const errorMessage = document.getElementById('error-message');
         const successMessage = document.getElementById('success-message');
         const loginSection = document.getElementById('login-section');
+        const currentUserDiv = document.getElementById('current-user');
+        const switchAccountSection = document.getElementById('switch-account-section');
+        const currentUserAvatar = document.getElementById('current-user-avatar');
+        const currentUserName = document.getElementById('current-user-name');
+        const currentUserEmail = document.getElementById('current-user-email');
 
         // Show error message
         function showError(message) {
@@ -335,7 +451,6 @@
                 const userSnap = await getDoc(userRef);
                 
                 if (!userSnap.exists()) {
-                    // New user - create profile
                     await setDoc(userRef, {
                         uid: user.uid,
                         displayName: user.displayName,
@@ -345,30 +460,37 @@
                         createdAt: serverTimestamp(),
                         lastLoginAt: serverTimestamp()
                     });
-                    console.log('Yangi foydalanuvchi yaratildi:', user.displayName);
                 } else {
-                    // Existing user - update last login
                     await setDoc(userRef, {
                         lastLoginAt: serverTimestamp()
                     }, { merge: true });
-                    console.log('Foydalanuvchi yangilandi:', user.displayName);
                 }
-                return true;
             } catch (error) {
                 console.error('Firestore xatolik:', error);
-                throw error;
             }
         }
 
-        // Avtomatik asosiy ilovaga o'tish
-        function redirectToApp(user) {
-            console.log('Foydalanuvchi tizimga kirdi:', user.displayName);
-            console.log('Asosiy ilovaga yo\'naltirilmoqda...');
+        // Display current user info
+        function showCurrentUser(user) {
+            currentUserAvatar.src = user.photoURL || 'https://via.placeholder.com/40';
+            currentUserName.textContent = user.displayName || 'Foydalanuvchi';
+            currentUserEmail.textContent = user.email;
             
-            // 2 sekund kutib, keyin asosiy ilovaga o'tish
-            setTimeout(() => {
-                window.location.href = 'https://tasklyuz.netlify.app';
-            }, 2000);
+            currentUserDiv.classList.add('active');
+            loginSection.style.display = 'none';
+            switchAccountSection.style.display = 'block';
+        }
+
+        // Show login form
+        function showLoginForm() {
+            currentUserDiv.classList.remove('active');
+            loginSection.style.display = 'block';
+            switchAccountSection.style.display = 'none';
+        }
+
+        // Redirect to main app
+        function redirectToApp() {
+            window.location.href = 'https://tasklyuz.netlify.app';
         }
 
         // Google Sign In
@@ -380,59 +502,59 @@
                 const result = await signInWithPopup(auth, googleProvider);
                 const user = result.user;
 
-                // Save to Firestore
                 await saveUserToFirestore(user);
-
-                // Show success message
-                showSuccess('Muvaffaqiyatli kirdingiz! Ilovaga yo\'naltirilmoqda...');
-
-                // Avtomatik asosiy ilovaga o'tish
-                redirectToApp(user);
-
+                showSuccess('Muvaffaqiyatli kirdingz! Ilovaga yo\'naltirilmoqda...');
+                
+                setTimeout(redirectToApp, 1500);
             } catch (error) {
                 hideLoading();
                 console.error('Kirish xatolik:', error);
 
-                let errorMsg = 'Kirishda xatolik yuz berdi. Qayta urining.';
-                
+                let errorMsg = 'Kirishda xatolik yuz berdi.';
                 switch (error.code) {
                     case 'auth/popup-closed-by-user':
                         errorMsg = 'Oyna yopildi. Qayta urining.';
                         break;
                     case 'auth/popup-blocked':
-                        errorMsg = 'Popup bloklandi. Brauzer sozlamalarini tekshiring.';
-                        break;
-                    case 'auth/account-exists-with-different-credential':
-                        errorMsg = 'Bu email bilan boshqa usulda ro\'yxatdan o\'tgan.';
+                        errorMsg = 'Popup bloklandi.';
                         break;
                     case 'auth/network-request-failed':
-                        errorMsg = 'Internet aloqasi yo\'q. Qayta urining.';
+                        errorMsg = 'Internet aloqasi yo\'q.';
                         break;
-                    default:
-                        errorMsg = `Xatolik: ${error.message}`;
                 }
-
                 showError(errorMsg);
             }
         }
 
+        // Switch account (logout and show login)
+        async function switchAccount() {
+            try {
+                await signOut(auth);
+                showLoginForm();
+                showSuccess('Hisobdan chiqildi. Yangi hisob bilan kiring.');
+            } catch (error) {
+                console.error('Chiqish xatolik:', error);
+                showError('Hisobdan chiqishda xatolik.');
+            }
+        }
+
+        // Event listeners
+        googleSignInBtn.addEventListener('click', signInWithGoogle);
+        continueBtn.addEventListener('click', redirectToApp);
+        switchAccountBtn.addEventListener('click', switchAccount);
+
         // Check auth state
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // User is signed in - avtomatik asosiy ilovaga o'tish
-                console.log('Foydalanuvchi avvaldan kirilgan:', user.displayName);
-                showLoading();
-                showSuccess('Avvaldan tizimga kirilgan. Ilovaga yo\'naltirilmoqda...');
-                redirectToApp(user);
+                // User is signed in - show current user info
+                console.log('Foydalanuvchi kirilgan:', user.displayName);
+                showCurrentUser(user);
             } else {
-                // User is signed out
+                // User is signed out - show login form
                 console.log('Foydalanuvchi tizimga kirmagan');
-                hideLoading();
+                showLoginForm();
             }
         });
-
-        // Event listener
-        googleSignInBtn.addEventListener('click', signInWithGoogle);
 
         console.log('Firebase Auth yuklandi');
     </script>
